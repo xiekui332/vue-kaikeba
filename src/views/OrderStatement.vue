@@ -6,13 +6,14 @@
       <div class="info_name">
         <h2>车型</h2>
         <ul>
-          <li v-for="item in vehicleType" :key="item.id" @click="showList(item.id)">{{item.type}}</li>
+          <li v-for="(item,index) in vehicleType" :key="item.id" :class="{active: index === current}"   @click="showList(item.id,index)">{{item.type}}</li>
         </ul>
       </div>
       <div class="info_list" v-show="isShowList">
-        <ul>
+        <ul v-if="list.length>0">
           <li v-for="item in list" :key="item.orderId">{{item.orderId}}</li>
         </ul>
+        <div v-else>暂无该订单！</div>
       </div>
     </div>
   </div>
@@ -23,13 +24,13 @@ import { statistics,getList } from "@/api";
 export default {
   data() {
     return {
+      current: -1,
       myChart:null,
       vehicleType: [
-        { type: "出租车", id: 1 },
-        { type: "专车", id: 2 },
-        { type: "顺风车", id: 3 },
-        { type: "拼车", id: 4 },
-        { type: "豪华车", id: 5 }
+        { type: "滴滴专车", id: 1 },
+        { type: "滴滴企业专车", id: 2 },
+        { type: "滴滴快车", id: 3 },
+        { type: "滴滴企业快车", id: 4 },
       ],
       carData:[],
       list:[],
@@ -67,13 +68,15 @@ export default {
       this.myChart.setOption(option);
     },
     // 展示列表
-    async showList(id) {
+    async showList(id,index) {
+      this.current = index;
+      
       const {status,data:{data:{list}}} = await getList({productId:id});
+      console.log(list)
       if(status === 200){
           this.list = list
-          console.log(this.list)
-      }
-      this.isShowList = true;
+          this.isShowList = true;
+      }  
     }
   }
 };
@@ -81,47 +84,43 @@ export default {
 
 <style lang="scss" scoped>
 #chart {
-  min-width: 40%;
+  width: 45%;
   background: #181b2c;
   position: absolute;
   top: 80px;
-  left: 20px;
-  bottom: 50px;
+  left: 2%;
+  bottom: 5%;
 }
-// #chart{
-//     width: 30%;
-//     height: 500px;
-//     background: #181B2C;
-//     margin: 50px;
-// }
 .info {
-  min-width: 45%;
+  width: 45%;
   background: #181b2c;
   position: absolute;
   top: 80px;
-  left: 50%;
-  bottom: 50px;
+  right: 2%;
+  bottom: 5%;
   .info_name {
     color: #fff;
     float: left;
     h2 {
       font-size: 20px;
       color: #fff;
-      margin: 15px 0 0 50px;
+      margin: 20px 0 0 50px;
       padding-left: 15px;
       border-left: solid 3px #ffdc76;
     }
     ul {
-      //   margin-top: 30px;
+      margin: 30px 0 0 70px; 
       li {
         width: 100px;
-        font-size: 12px;
         line-height: 30px;
-        // margin: auto;
-        margin-left: 80px;
-        border-bottom: solid 1px #ffdc76;
+        margin: 20px 0;
+        border-bottom: solid 2px #46413b;
+        cursor: pointer;
       }
     }
+    .active {
+        border-bottom: solid 2px #ffdc76;
+      }
   }
 
   .info_list {
@@ -137,12 +136,14 @@ export default {
         width: 100px;
         font-size: 12px;
         line-height: 30px;
-        margin: auto;
-        border-bottom: solid 2px #46413b;
+        margin: 10px auto;
+        border-bottom: solid 1px #ffdc76;
       }
-      .active {
-        border-bottom: solid 2px #46413b;
-      }
+    }
+    div{
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
     }
   }
 }

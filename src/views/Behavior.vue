@@ -15,8 +15,18 @@ export default {
   },
   mounted() {
     this.initChart();
+    this.initMap();
+    console.log("设置正北方向......");
+    window.AMap.ControlBar.prototype.XU = function(a, b) {
+      console.log("a:" + a + "," + b);
+      b = (b / 90) * 60;
+      this.GK || (b = 0);
+      this.g.su.style.transform = this.g.su.style.WebkitTransform =
+        "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
+    };
   },
   methods: {
+    // 初始化图表
     initChart() {
       const option = {
         xAxis: {
@@ -51,6 +61,27 @@ export default {
       };
       this.myChart = this.$echarts.init(document.getElementById("chart"));
       this.myChart.setOption(option);
+    },
+    // 初始化地图
+    initMap(){
+      var map = new AMap.Map("container", {
+        resizeEnable: true,
+        rotateEnable: true,
+        pitchEnable: false,
+        zoom: 17,
+        pitch: 65,
+        rotation: 45,
+        viewMode: "3D", //开启3D视图,默认为关闭
+        expandZoomRange: true,
+        zoomToAccuracy: true,
+        center: [116.333926, 39.997245],
+        // mapStyle: "amap://styles/f83c66227b0703fd99732aa8928e6f0e"
+        mapStyle: "amap://styles/34eee3392325080eabb764ca4af5f2ab"
+      });
+       AMap.plugin(["AMap.ControlBar"], function() {
+        // 添加 3D 罗盘控制
+        map.addControl(new AMap.ControlBar());
+      });
     }
   }
 };
@@ -58,19 +89,19 @@ export default {
 
 <style lang="scss" scoped>
 #chart {
-  min-width: 40%;
+  width: 45%;
   background: #181b2c;
   position: absolute;
   top: 80px;
-  left: 20px;
+  left: 3%;
   bottom: 50px;
 }
 #container {
-  min-width: 45%;
+  width: 45%;
   background: #181b2c;
   position: absolute;
   top: 80px;
-  left: 50%;
+  right: 3%;
   bottom: 50px;
 }
 </style>
