@@ -128,7 +128,7 @@ export default {
         // },
         series: [
           {
-            name: "访问来源sssss",
+            name: "访问来源",
             type: "pie",
             radius: "55%",
             center: ["50%", "60%"],
