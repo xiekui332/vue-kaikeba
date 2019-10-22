@@ -7,7 +7,7 @@
           汽车出行
         </li>
         <li>
-          <el-dropdown trigger="click" @command="handleCommand">
+          <el-dropdown v-if="statusData" trigger="click" @command="handleCommand">
             <span class="el-dropdown-link">
               <i class="el-icon-location-outline el-icon--left"></i>
               {{city}}
@@ -32,6 +32,7 @@
           active-text-color="#fff"
           class="el-menu-demo"
           mode="horizontal"
+          @select="handleSelect"
         >
           <el-menu-item v-for="item in navList" :index="item.router" :key="item.name">{{item.name}}</el-menu-item>
           <!-- <el-menu-item>其余</el-menu-item> -->
@@ -67,6 +68,7 @@
 export default {
   data() {
     return {
+      statusData: true,
       activeIndex: "1",
       navList: [
         { name: "概览", router: "/" },
@@ -85,7 +87,13 @@ export default {
   },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+      console.log(key);
+      console.log(keyPath);
+      if(key === '/'){
+        this.statusData = true
+      } else{
+        this.statusData = false
+      }
     },
     handleCommand(command) {
       if (command === "075") {

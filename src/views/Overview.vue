@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import AMap from 'AMap'
 import { orderOverview, orderGps, hourOrderCount } from "@/api";
 export default {
   data() {
@@ -165,8 +166,8 @@ export default {
       console.log("a:" + a + "," + b);
       b = (b / 90) * 60;
       this.GK || (b = 0);
-      this.g.su.style.transform = this.g.su.style.WebkitTransform =
-        "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
+      // this.g.su.style.transform = this.g.su.style.WebkitTransform =
+      //   "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
     };
     console.log("map.ControlBar:" + this.map);
 

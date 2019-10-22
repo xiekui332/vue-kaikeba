@@ -157,7 +157,7 @@ export default {
       // document.getElementById("lng_lat").innerHTML = innerHTML + "<br/>";
     },
     //连接发生错误的回调方法
-    websocketonerror() {
+    websocketonerror(error) {
       this.setMessage(error);
     },
     //连接成功建立的回调方法

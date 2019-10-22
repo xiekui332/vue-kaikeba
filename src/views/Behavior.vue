@@ -17,13 +17,13 @@ export default {
     this.initChart();
     this.initMap();
     console.log("设置正北方向......");
-    window.AMap.ControlBar.prototype.XU = function(a, b) {
-      console.log("a:" + a + "," + b);
-      b = (b / 90) * 60;
-      this.GK || (b = 0);
-      this.g.su.style.transform = this.g.su.style.WebkitTransform =
-        "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
-    };
+    // window.AMap.ControlBar.prototype.XU = function(a, b) {
+    //   console.log("a:" + a + "," + b);
+    //   b = (b / 90) * 60;
+    //   this.GK || (b = 0);
+    //   this.g.su.style.transform = this.g.su.style.WebkitTransform =
+    //     "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
+    // };
   },
   methods: {
     // 初始化图表

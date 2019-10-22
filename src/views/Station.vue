@@ -41,10 +41,10 @@ export default {
         // mapStyle: "amap://styles/f83c66227b0703fd99732aa8928e6f0e"
         mapStyle: "amap://styles/34eee3392325080eabb764ca4af5f2ab"
       });
-      //   AMap.plugin(["AMap.ControlBar"], function() {
+        AMap.plugin(["AMap.ControlBar"], function() {
       // 添加 3D 罗盘控制
-      map.addControl(new AMap.ControlBar());
-      //   });
+          map.addControl(new AMap.ControlBar());
+        });
 
       // 创建纯文本标记
       var text = new AMap.Text({

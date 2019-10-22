@@ -7,31 +7,29 @@
           <i class="el-icon-bank-card"></i>
           <span>平台总订单数</span>
         </h5>
-        <p>132.034.4</p>
+        <p>{{proMessage.totalOrderCount}}</p>
       </div>
       <div class="num_item">
         <h5>
           <i class="el-icon-bank-card"></i>
           <span>平台注册用户总数</span>
         </h5>
-        <p>132.034.4</p>
+        <p>{{proMessage.registerTotalCount}}</p>
       </div>
       <div class="num_item">
         <h5>
           <i class="el-icon-bank-card"></i>
           <span>平台订单金额总数</span>
         </h5>
-        <p>132.034.4</p>
+        <p>{{proMessage.pay_all}}</p>
       </div>
       <!-- <div>平台注册用户总数</div>
       <div>平台订单金额总数</div>-->
     </div>
     <div class="active">
-      <h3>活跃用户数(位)</h3>
       <div id="chart"></div>
     </div>
     <div class="total">
-      <h3>注册用户数(位)</h3>
       <div id="chart2"></div>
     </div>
     <div class="retention">
@@ -59,7 +57,7 @@
         </div>
         <div>
           <el-progress
-            type="dashboard"
+            type="circle"
             :percentage="percentage3"
             :color="colors"
             :stroke-width="15"
@@ -73,9 +71,13 @@
 </template>
 
 <script>
+import { proData, srsData, asData, rssData} from "@/api";
 export default {
   data() {
     return {
+      proMessage: {},
+      asData: [],
+      rssData: [],
       myChart: null,
       myChart2: null,
       //   进度条数据
@@ -92,9 +94,10 @@ export default {
     };
   },
   mounted() {
+    var y = 5E7
+    console.log(y) 
     this.initMap();
-    this.initChart();
-    this.initChart2();
+    this.getAllData()
     // window.AMap.ControlBar.prototype.XU = function(a, b) {
     //   console.log("a:" + a + "," + b);
     //   b = (b / 90) * 60;
@@ -104,6 +107,64 @@ export default {
     // };
   },
   methods: {
+    async getAllData(){
+      await proData({}).then((res) => {
+        if (res.status === 200){
+          this.proMessage = res.data[0]
+        }
+      })
+      await srsData({}).then((resSrs) =>{
+        if(resSrs.status === 200){
+          this.percentage = parseInt(resSrs.data[0].dayStayRate.replace('%', ''))
+          this.percentage1 = parseInt(resSrs.data[0].weekStayRate.replace('%', ''))
+          this.percentage2 = parseInt(resSrs.data[0].monthStayRate.replace('%', ''))
+        }
+      })
+      await asData({}).then((resAs) => {
+        if(resAs.status === 200){
+          this.asData = [
+            {
+              value: resAs.data[0].DAU,
+              name: '当日',
+              itemStyle: { color: "#0099FF" }
+            },
+            {
+              value: resAs.data[0].WAU,
+              name: '当周',
+              itemStyle: { color: "#99CC33" }
+            },
+            {
+              value: resAs.data[0].MAU,
+              name: '当月',
+              itemStyle: { color: "#FF6600" }
+            }
+          ]
+        }
+      })
+      await rssData({}).then((resRss) =>{
+        if(resRss.status === 200){
+          this.rssData = [
+            {
+              value: resRss.data[0].dayNewUserCount,
+              name: '当日',
+              itemStyle: { color: "#0099FF" }
+            },
+            {
+              value: resRss.data[0].weekNewUserCount,
+              name: '当周',
+              itemStyle: { color: "#99CC33" }
+            },
+            {
+              value: resRss.data[0].monthNewUserCount,
+              name: '当月',
+              itemStyle: { color: "#FF6600" }
+            }
+          ]
+        }
+      })
+      this.initChart();
+      this.initChart2();
+    },
     initMap() {
       //初始化地图
       var map = new AMap.Map("container", {
@@ -128,6 +189,22 @@ export default {
     },
     initChart() {
       const option = {
+        title: {
+          text: '活跃用户数(位)',
+          textStyle: {
+            color: "#fff"
+          }
+        },
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+              type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          },
+          formatter: function (params) {
+              var tar = params[0];
+              return tar.name + '<br/>' + '位数' + ' : ' + tar.value;
+          }
+        },
         xAxis: {
           type: "value",
           axisLine: {
@@ -150,11 +227,7 @@ export default {
         },
         series: [
           {
-            data: [
-              { value: 5002, itemStyle: { color: "#12B6F4" } },
-              { value: 13000, itemStyle: { color: "#C21AA1" } },
-              { value: 16000, itemStyle: { color: "#01A1EC" } }
-            ],
+            data: this.asData,
             type: "bar"
           }
         ]
@@ -164,6 +237,22 @@ export default {
     },
     initChart2() {
       const option = {
+        title: {
+            text: '注册用户数(位)',
+            textStyle: {
+              color: "#fff"
+            }
+        },
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+              type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          },
+          formatter: function (params) {
+              var tar = params[0];
+              return tar.name + '<br/>' + '位数' + ' : ' + tar.value;
+          }
+        },
         xAxis: {
           type: "category",
           axisLine: {
@@ -198,11 +287,7 @@ export default {
         // },
         series: [
           {
-            data: [
-              { value: 5002, itemStyle: { color: "#12B6F4" } },
-              { value: 13000, itemStyle: { color: "#C21AA1" } },
-              { value: 16000, itemStyle: { color: "#01A1EC" } }
-            ],
+            data: this.rssData,
             type: "bar"
           }
         ]
@@ -218,6 +303,7 @@ export default {
 #container {
   width: 100%;
   height: 100%;
+  // overflow-y: scroll
 }
 h3 {
   padding: 15px;
@@ -247,7 +333,7 @@ h3 {
   width: 20%;
   // height: 300px;
   position: absolute;
-  bottom: 50px;
+  top: 50%;
   left: 0;
   z-index: 999;
   color: #fff;
@@ -274,7 +360,7 @@ h3 {
   }
 }
 .retention {
-  width: 25%;
+  width: 30%;
   height: 200px;
   position: absolute;
   bottom: 50px;

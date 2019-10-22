@@ -1,9 +1,50 @@
-import request from '@/utils/request'
+import request from './request'
 
 // 首页订单概况
 export function orderOverview (data){
     return request({
         url:'http://192.168.85.166:8080/track/orderOverview',
+        data,
+        method: 'post'
+    })
+}
+//系统监控接口
+export function testData (data){
+    return request({
+        url:'api/didiRedis/monitoring',
+        data,
+        method: 'post'
+    })
+}
+//用户数据-订单-赵宏伟
+export function proData (data){
+    return request({
+        url:'api/didi/pro',
+        data,
+        method: 'post'
+    })
+}
+//用户数据-留存率-赵宏伟
+export function srsData (data){
+    return request({
+        url:'api/didi/srs',
+        data,
+        method: 'post'
+    })
+}
+//用户数据-活跃-赵宏伟
+export function asData (data){
+    return request({
+        url:'api/didi/as',
+        data,
+        method: 'post'
+    })
+}
+
+//用户数据-注册用户-赵宏伟
+export function rssData (data){
+    return request({
+        url:'api/didi/rss',
         data,
         method: 'post'
     })
@@ -16,6 +57,16 @@ export function orderGps (data){
         method: 'post'
     })
 }
+
+// 平均速度
+export function avgSpeed (data){
+    return request({
+        url:'http://192.168.85.166:8080/track/avgSpeed',
+        data,
+        method: 'post'
+    })
+}
+
 
 // 订单数量变化
 export function hourOrderCount (data){

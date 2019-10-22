@@ -1,6 +1,6 @@
 <!-- 订单监控 -->
 <template>
-  <div style="width:100%;height:100%;">
+  <div style="width:100%;height:100%;color:#fff">
     <div id="chart"></div>
     <!-- <div class="order_list"> -->
     <!-- <h2>订单列表</h2> -->
@@ -33,7 +33,51 @@
     </div>
 
     <div class="info">
-      <table>
+      <el-tabs type="card">
+          <el-tab-pane>
+            <span slot="label"><i class="el-icon-truck"></i> 车辆</span>
+            <div class="table">
+              <el-table :data="tableData" border style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="汽车"
+                width="180">
+              </el-table-column>
+              <el-table-column
+                prop="name"
+                label="类型"
+                width="180">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="重量">
+              </el-table-column>
+            </el-table>
+          </div>
+          </el-tab-pane>
+          <el-tab-pane label="订单">
+            <span slot="label"><i class="el-icon-tickets"></i> 订单</span>
+            <div class="table">
+              <el-table :data="tableData" border style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="日期"
+                width="180">
+              </el-table-column>
+              <el-table-column
+                prop="name"
+                label="姓名"
+                width="180">
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="地址">
+              </el-table-column>
+            </el-table>
+          </div>
+          </el-tab-pane>
+        </el-tabs>
+      <!-- <table>
         <tr>
           <td></td>
           <td></td>
@@ -54,18 +98,52 @@
           <td></td>
           <td></td>
         </tr>
-      </table>
+      </table> -->
     </div>
     <!-- </div> -->
   </div>
 </template>
 
 <script>
+import "echarts/map/js/china.js";
 export default {
   data() {
     return {
       myChart: null,
-      list: ["列表1", "列表1", "列表1", "列表1", "列表1", "列表1"]
+      list: ["列表1", "列表1", "列表1", "列表1", "列表1", "列表1"],
+      tableData: [{
+            date: '2016-05-02',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+          }, {
+            date: '2016-05-04',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1517 弄'
+          }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+          },  {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+          }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+          }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+          }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+          },{
+            date: '2016-05-03',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1516 弄'
+      }]
     };
   },
   mounted() {
@@ -346,7 +424,7 @@ export default {
 }
 .order_info {
   width: 25%;
-  height: 20%;
+  height: 25%;
   border: solid 1px #696d79;
   position: absolute;
   left: 2%;
@@ -394,10 +472,13 @@ export default {
   bottom: 0;
   left: 0;
   background: #181b2c;
+  top: 60%;
+  color: #fff;
   opacity: 0.8;
   table {
     width: 100%;
     border-collapse: collapse;
+    color:#fff
   }
   tr td {
     height: 50px;
