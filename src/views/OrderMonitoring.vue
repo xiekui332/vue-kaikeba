@@ -1,37 +1,82 @@
 <!-- 订单监控 -->
 <template>
   <div style="width:100%;height:100%;color:#fff">
-    <div id="chart"></div>
     <!-- <div class="order_list"> -->
     <!-- <h2>订单列表</h2> -->
     <!-- <ul>
         <li v-for="(item,index) in list" :key="index">{{item}}</li>
     </ul>-->
+    <div id="chart"></div>
     <div class="order_info">
       <ul>
         <li>
           <i></i>
           <b>总订单:</b>
-          <span>23124</span>
+          <span>{{leftOrder.total_count}}</span>
         </li>
         <li>
           <i></i>
-          <b>月均订单数:</b>
-          <span>23124</span>
+          <b>日均订单数:</b>
+          <span>{{leftOrder.daily_count}}</span>
         </li>
         <li>
           <i></i>
           <b>月订单数:</b>
-          <span>23124</span>
+          <span>{{leftOrder.cur_month_count}}</span>
         </li>
         <li>
           <i></i>
           <b>订单总里程:</b>
-          <span>23124</span>
+          <span>{{leftOrder.total_mileage}}</span>
         </li>
       </ul>
     </div>
 
+    <div class="retention">
+      <h3>订单数(辆次)</h3>
+      <div class="progress">
+        <div>
+          <el-progress
+            type="dashboard"
+            :percentage="percentage"
+            :color="colors"
+            :stroke-width="15"
+            :width="100"
+          ></el-progress>
+          <p>日均订单数</p>
+        </div>
+        <div>
+          <el-progress
+            type="dashboard"
+            :percentage="percentage1"
+            :color="colors"
+            :stroke-width="15"
+            :width="100"
+          ></el-progress>
+          <p>周订单数</p>
+        </div>
+        <div>
+          <el-progress
+            type="circle"
+            :percentage="percentage2"
+            :color="colors"
+            :stroke-width="15"
+            :width="100"
+          ></el-progress>
+          <p>月订单数</p>
+        </div>
+        <div>
+          <el-progress
+            type="circle"
+            :percentage="percentage3"
+            :color="colors"
+            :stroke-width="15"
+            :width="100"
+          ></el-progress>
+          <p>订单累计里程总数</p>
+        </div>
+      </div>
+    </div>
     <div class="info">
       <el-tabs type="card">
           <el-tab-pane>
@@ -39,18 +84,29 @@
             <div class="table">
               <el-table :data="tableData" border style="width: 100%">
               <el-table-column
-                prop="date"
-                label="汽车"
+                prop="city_code"
+                label="城市"
+                width="180">
+                <template slot-scope="scope">
+                    <div style="cursor: pointer" slot="reference" class="name-wrapper">
+                      <el-tag v-if="scope.row.city_code === '110100'" size="medium">北京</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '370600'" size="medium">烟台</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '420100'" size="medium">武汉</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '420300'" size="medium">十堰</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '610100'" size="medium">西安</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '460100'" size="medium">海口</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '510100'" size="medium">成都</el-tag>
+                    </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="_day_vehicle_num"
+                label="日车辆数"
                 width="180">
               </el-table-column>
               <el-table-column
-                prop="name"
-                label="类型"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                prop="address"
-                label="重量">
+                prop="_month_vehicle_num"
+                label="月车辆数">
               </el-table-column>
             </el-table>
           </div>
@@ -60,18 +116,33 @@
             <div class="table">
               <el-table :data="tableData" border style="width: 100%">
               <el-table-column
-                prop="date"
-                label="日期"
+                prop="city_code"
+                label="城市"
+                width="180">
+                <template slot-scope="scope">
+                    <div style="cursor: pointer" slot="reference" class="name-wrapper">
+                      <el-tag  @click="handleEdit(scope.$index, scope.row)" v-if="scope.row.city_code === '110100'" size="medium">北京</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '370600'" size="medium">烟台</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '420100'" size="medium">武汉</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '420300'" size="medium">十堰</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '610100'" size="medium">西安</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '460100'" size="medium">海口</el-tag>
+                      <el-tag v-else-if="scope.row.city_code === '510100'" size="medium">成都</el-tag>
+                    </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="_day_order_num"
+                label="日订单数"
                 width="180">
               </el-table-column>
               <el-table-column
-                prop="name"
-                label="姓名"
-                width="180">
+                prop="_week_order_num"
+                label="周订单数">
               </el-table-column>
               <el-table-column
-                prop="address"
-                label="地址">
+                prop="_month_order_num"
+                label="月订单数">
               </el-table-column>
             </el-table>
           </div>
@@ -106,311 +177,323 @@
 
 <script>
 import "echarts/map/js/china.js";
+import util from '@/api/request.js'
 export default {
   data() {
     return {
+      percentage3: 60,
+      percentage2: 80,
+      percentage1: 40,
+      percentage: 90,
+      leftOrder: {},
+      colors: [
+        { color: "#f56c6c", percentage: 20 },
+        { color: "#e6a23c", percentage: 40 },
+        { color: "#5cb87a", percentage: 60 },
+        { color: "#1989fa", percentage: 80 },
+        { color: "#6f7ad3", percentage: 100 }
+      ],
       myChart: null,
       list: ["列表1", "列表1", "列表1", "列表1", "列表1", "列表1"],
-      tableData: [{
-            date: '2016-05-02',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-          }, {
-            date: '2016-05-04',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1517 弄'
-          }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          },  {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          },{
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      tableData: []
     };
   },
   mounted() {
     this.initChart();
+    this.getLeftOrder()
+    this.get0rderTable()
+    this.getRightOrder()
   },
   methods: {
+    handleEdit(a,b){
+      console.log(a)
+      console.log(b)
+    },
+    get0rderTable(){
+      util.axios({
+        method: 'post',
+        data: {},
+        url:'/didi/vehicle_order'
+      }).then(res =>{
+        console.log(res)
+        this.tableData = res.data
+      })
+    },
+    getLeftOrder(){
+      util.axios({
+        method: 'post',
+        url:'/didi/dwmm',
+        data: {}
+      }).then(res => {
+        this.leftOrder = res.data[0]
+      })
+    },
+    getRightOrder(){
+      util.axios({
+        method: 'post',
+        data:{},
+        url: '/didi/fspos'
+      }).then(res =>{
+        console.log('完成率')
+        console.log(res)
+      })
+    },
     initChart() {
       // 基于准备好的dom，初始化echarts图表
+      var mapName = 'china';
+      var data = [
+          {name:"北京",value:199},
+          {name:"天津",value:42},
+          {name:"河北",value:102},
+          {name:"山西",value:81},
+          {name:"内蒙古",value:47},
+          {name:"辽宁",value:67},
+          {name:"吉林",value:82},
+          {name:"黑龙江",value:123},
+          {name:"上海",value:24},
+          {name:"江苏",value:92},
+          {name:"浙江",value:114},
+          {name:"安徽",value:109},
+          {name:"福建",value:116},
+          {name:"江西",value:91},
+          {name:"山东",value:119},
+          {name:"河南",value:137},
+          {name:"湖北",value:116},
+          {name:"湖南",value:114},
+          {name:"重庆",value:91},
+          {name:"四川",value:125},
+          {name:"贵州",value:62},
+          {name:"云南",value:83},
+          {name:"西藏",value:9},
+          {name:"陕西",value:80},
+          {name:"甘肃",value:56},
+          {name:"青海",value:10},
+          {name:"宁夏",value:18},
+          {name:"新疆",value:180},
+          {name:"广东",value:123},
+          {name:"广西",value:59},
+          {name:"海南",value:14},
+      ];
+
+      var geoCoordMap = {};
+      var toolTipData = [
+          {name:"北京",value:[{name:"科技人才总数",value:95},{name:"理科",value:82}]},
+          {name:"天津",value:[{name:"文科",value:22},{name:"理科",value:20}]},
+          {name:"河北",value:[{name:"文科",value:60},{name:"理科",value:42}]},
+          {name:"山西",value:[{name:"文科",value:40},{name:"理科",value:41}]},
+          {name:"内蒙古",value:[{name:"文科",value:23},{name:"理科",value:24}]},
+          {name:"辽宁",value:[{name:"文科",value:39},{name:"理科",value:28}]},
+          {name:"吉林",value:[{name:"文科",value:41},{name:"理科",value:41}]},
+          {name:"黑龙江",value:[{name:"文科",value:35},{name:"理科",value:31}]},
+          {name:"上海",value:[{name:"文科",value:12},{name:"理科",value:12}]},
+          {name:"江苏",value:[{name:"文科",value:47},{name:"理科",value:45}]},
+          {name:"浙江",value:[{name:"文科",value:57},{name:"理科",value:57}]},
+          {name:"安徽",value:[{name:"文科",value:57},{name:"理科",value:52}]},
+          {name:"福建",value:[{name:"文科",value:59},{name:"理科",value:57}]},
+          {name:"江西",value:[{name:"文科",value:49},{name:"理科",value:42}]},
+          {name:"山东",value:[{name:"文科",value:67},{name:"理科",value:52}]},
+          {name:"河南",value:[{name:"文科",value:69},{name:"理科",value:68}]},
+          {name:"湖北",value:[{name:"文科",value:60},{name:"理科",value:56}]},
+          {name:"湖南",value:[{name:"文科",value:62},{name:"理科",value:52}]},
+          {name:"重庆",value:[{name:"文科",value:47},{name:"理科",value:44}]},
+          {name:"四川",value:[{name:"文科",value:65},{name:"理科",value:60}]},
+          {name:"贵州",value:[{name:"文科",value:32},{name:"理科",value:30}]},
+          {name:"云南",value:[{name:"文科",value:42},{name:"理科",value:41}]},
+          {name:"西藏",value:[{name:"文科",value:5},{name:"理科",value:4}]},
+          {name:"陕西",value:[{name:"文科",value:38},{name:"理科",value:42}]},
+          {name:"甘肃",value:[{name:"文科",value:28},{name:"理科",value:28}]},
+          {name:"青海",value:[{name:"文科",value:5},{name:"理科",value:5}]},
+          {name:"宁夏",value:[{name:"文科",value:10},{name:"理科",value:8}]},
+          {name:"新疆",value:[{name:"文科",value:36},{name:"理科",value:31}]},
+          {name:"广东",value:[{name:"文科",value:63},{name:"理科",value:60}]},
+          {name:"广西",value:[{name:"文科",value:29},{name:"理科",value:30}]},
+          {name:"海南",value:[{name:"文科",value:8},{name:"理科",value:6}]},
+      ];
+    
+      // 基于准备好的dom，初始化echarts图表
       this.myChart = this.$echarts.init(document.getElementById("chart"));
+      this.myChart.showLoading();
+        var mapFeatures = this.$echarts.getMap(mapName).geoJson.features;
+        this.myChart.hideLoading();
+        mapFeatures.forEach(function(v) {
+            // 地区名称
+            var name = v.properties.name;
+            // 地区经纬度
+            geoCoordMap[name] = v.properties.cp;
+
+        });
+        var max = 480,
+            min = 9; // todo
+        var maxSize4Pin = 100,
+            minSize4Pin = 20;
+            var convertData = function(data) {
+          var res = [];
+          for (var i = 0; i < data.length; i++) {
+              var geoCoord = geoCoordMap[data[i].name];
+              if (geoCoord) {
+                  res.push({
+                      name: data[i].name,
+                      value: geoCoord.concat(data[i].value),
+                  });
+              }
+          }
+          return res;
+      };
       const option = {
         backgroundColor: "#1b1b1b",
-        color: ["gold", "aqua", "lime"],
         tooltip: {
-          trigger: "item",
-          formatter: "{b}"
+        padding: 0,
+        enterable: true,
+        transitionDuration: 1,
+        textStyle: {
+            color: '#000',
+            decoration: 'none',
         },
-        dataRange: {
-          show: false,
-          min: 0,
-          max: 100,
-          calculable: true,
-          color: ["#ff3333", "orange", "yellow", "lime", "aqua"],
-          textStyle: {
-            color: "#fff"
+        // position: function (point, params, dom, rect, size) {
+        //   return [point[0], point[1]];
+        // },
+        formatter: function(params) {
+            // console.log(params)
+            var tipHtml = '';
+            tipHtml = '<div style="width:200px;height:100px;background:rgba(22,80,158,0.8);border:1px solid rgba(7,166,255,0.7)">'
+            +'<div style="width:80%;height:40px;line-height:40px;border-bottom:2px solid rgba(7,166,255,0.7);padding:0 20px">'+'<el-progress :percentage="50" status="warning">' + '</el-progress>'
+            +'<span style="margin-left:10px;color:#fff;font-size:16px;">'+params.name+'</span>'+'</div>'
+            +'<p style="color:#fff;font-size:15px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px">'+'</i>'
+            +'车辆分布数：'+'<span style="color:#11ee7d;margin:0 6px;">'+toolTipData.length+'</span>'+'个'+'</p>'
+            +'<p style="color:#fff;font-size:15px;">'+'<i style="display:inline-block;width:10px;height:10px;background:#16d6ff;border-radius:40px;margin:0 8px">'+'</i>'
+            +'车辆订单数'+'<span style="color:#f48225;margin:0 6px;">'+toolTipData.length+'</span>'+'个'+'</p>'
+            +'</div>';
+            return tipHtml;
           }
+
         },
         visualMap: {
-          show: true,
-          min: 0,
-          max: 255,
-          calculable: true,
-          inRange: {
-            color: ["aqua", "lime", "yellow", "orange", "#ff3333"]
-          },
-          textStyle: {
-            color: "#12223b"
-          }
+            show: true,
+            min: 0,
+            max: 200,
+            left: '10%',
+            top: 'bottom',
+            calculable: true,
+            seriesIndex: [1],
+            inRange: {
+                color: ['#04387b', '#467bc0'] // 蓝绿
+            }
         },
         geo: {
-          // 这个是重点配置区
-          map: "china", // 表示中国地图
-          roam: true,
-          layoutCenter: ["50%", "50%"],
-          layoutSize: "130%",
-          label: {
-            normal: {
-              show: true, // 是否显示对应地名
-              textStyle: {
-                color: "rgba(0,0,0,0.4)"
-              }
-            }
-          },
-          itemStyle: {
-            normal: {
-              areaColor: "#1B1B1B",
-              borderColor: "#3B5076"
-            },
-            emphasis: {
-              areaColor: null,
-              shadowOffsetX: 0,
-              shadowOffsetY: 0,
-              shadowBlur: 20,
-              borderWidth: 0,
-              shadowColor: "rgba(0, 0, 0, 0.5)"
-            }
-          }
-        },
-        series: [
-          {
-            type: "lines",
-            zlevel: 2,
-            effect: {
-              show: true,
-              period: 4,
-              trailLength: 0.02,
-              symbol: "arrow",
-              symbolSize: 5
-            },
-            lineStyle: {
-              normal: {
-                width: 1,
-                opacity: 0.6,
-                curveness: 0.2
-              }
-            },
-            tooltip: {
-              trigger: "item"
-            },
-            data: [
-              {
-                fromName: "上海",
-                toName: "北京",
-                value: 19,
-                coords: [[121.48, 31.22], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "深圳",
-                toName: "北京",
-                value: 17,
-                coords: [[114.07, 22.62], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "成都",
-                toName: "北京",
-                value: 25,
-                coords: [[104.06, 30.67], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "四川",
-                toName: "北京",
-                value: 31,
-                coords: [[104.04, 30.4], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "西安",
-                toName: "北京",
-                value: 12,
-                coords: [[108.95, 34.27], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "广州",
-                toName: "北京",
-                value: 19,
-                coords: [[113.23, 23.16], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "郑州",
-                toName: "北京",
-                value: 18,
-                coords: [[113.65, 34.76], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "哈尔滨",
-                toName: "北京",
-                value: 15,
-                coords: [[126.63, 45.75], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "拉萨",
-                toName: "北京",
-                value: 12,
-                coords: [[91.11, 29.97], ["116.46", "39.92"]]
-              },
-              {
-                fromName: "桂林",
-                toName: "北京",
-                value: 12,
-                coords: [[110.28, 25.29], ["116.46", "39.92"]]
-              }
-            ]
-          },
-          {
-            // name: "收货地址",
-            type: "effectScatter",
-            coordinateSystem: "geo",
-            zlevel: 2,
-            rippleEffect: {
-              period: 4,
-              brushType: "stroke",
-              scale: 4
-            },
-            tooltip: {
-              trigger: "item"
-            },
+            show: true,
+            map: mapName,
             label: {
-              normal: {
-                show: true,
-                position: "left",
-                offset: [-5, 5],
-                formatter: "{b}"
-              },
-              emphasis: {
-                show: true
-              }
-            },
-            hoverAnimation: true,
-            symbol: "circle",
-            symbolSize: 5,
-            itemStyle: {
-              normal: {
-                show: false,
-                color: "#f00"
-              }
-            },
-            data: [
-              {
-                name: "上海",
-                value: [121.48, 31.22, 95]
-              },
-              {
-                name: "深圳",
-                value: [114.07, 22.62, 90]
-              },
-              {
-                name: "成都",
-                value: [104.06, 30.67, 80]
-              },
-              {
-                name: "四川",
-                value: [104.04, 30.4, 70]
-              },
-              {
-                name: "西安",
-                value: [108.95, 34.27, 60]
-              },
-              {
-                name: "广州",
-                value: [113.23, 23.16, 50]
-              },
-              {
-                name: "郑州",
-                value: [113.65, 34.76, 40]
-              },
-              {
-                name: "哈尔滨",
-                value: [126.63, 45.75, 30]
-              },
-              {
-                name: "拉萨",
-                value: [91.11, 29.97, 20]
-              },
-              {
-                name: "桂林",
-                value: [110.28, 25.29, 10]
-              }
-            ]
-          },
-          {
-            name: "发送地址",
-            type: "scatter",
-            coordinateSystem: "geo",
-            zlevel: 2,
-            tooltip: {
-              trigger: "item"
-            },
-            label: {
-              normal: {
-                show: true,
-                position: "right",
-                color: "#00ffff",
-                formatter: "{b}",
-                textStyle: {
-                  color: "#00ffff"
+                normal: {
+                    show: false
+                },
+                emphasis: {
+                    show: false,
                 }
-              },
-              emphasis: {
-                show: true
-              }
             },
-            symbol: "circle",
-            symbolSize: 20,
+            roam: true, //是否支持缩放 
             itemStyle: {
-              normal: {
-                show: true,
-                color: "#EE0000"
-              }
+                normal: {
+                    areaColor: '#023677',
+                    borderColor: '#1180c7',
+                },
+                emphasis: {
+                    areaColor: '#4499d0',
+                }
+            }
+        },
+        series: [{
+            name: '散点',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            data: convertData(data),
+            symbolSize: function(val) {
+                return val[2] / 10;
             },
-            data: [
-              {
-                name: "南京",
-                value: [118.796252, 32.0739]
-              }
-            ]
-          }
-        ]
+            label: {
+                normal: {
+                    formatter: '{b}',
+                    position: 'right',
+                    show: true
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#fff'
+                }
+            }
+        },
+            {
+                type: 'map',
+                map: mapName,
+                geoIndex: 0,
+                aspectScale: 0.75, //长宽比
+                showLegendSymbol: false, // 存在legend时显示
+                label: {
+                    normal: {
+                        show: true
+                    },
+                    emphasis: {
+                        show: false,
+                        textStyle: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                roam: true,
+                itemStyle: {
+                    normal: {
+                        areaColor: '#031525',
+                        borderColor: '#3B5077',
+                    },
+                    emphasis: {
+                        areaColor: '#2B91B7'
+                    }
+                },
+                animation: false,
+                data: data
+            },
+            {
+                name: '点',
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                zlevel: 6,
+            },
+            {
+                name: 'Top 5',
+                type: 'effectScatter',
+                coordinateSystem: 'geo',
+                data: convertData(data.sort(function(a, b) {
+                    return b.value - a.value;
+                }).slice(0, 10)),
+                symbolSize: function(val) {
+                    return val[2] / 10;
+                },
+                showEffectOn: 'render',
+                rippleEffect: {
+                    brushType: 'stroke'
+                },
+                hoverAnimation: true,
+                label: {
+                    normal: {
+                        formatter: '{b}',
+                        position: 'left',
+                        show: false
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        color: 'yellow',
+                        shadowBlur: 10,
+                        shadowColor: 'yellow'
+                    }
+                },
+                zlevel: 1
+            },
+          ]
       };
-
       // 为echarts对象加载数据
       this.myChart.setOption(option);
     }
@@ -423,7 +506,7 @@ export default {
   height: 100%;
 }
 .order_info {
-  width: 25%;
+  width: 28%;
   height: 25%;
   border: solid 1px #696d79;
   position: absolute;
@@ -486,33 +569,24 @@ export default {
     text-align: center;
   }
 }
-// .order_list {
-//   width: 200px;
-//   height: 500px;
-//   background: #181b2c;
-//   opacity: 0.8;
-//   color: #fff;
-//   background: #fff;
-//   z-index: 999;
-//   position: absolute;
-//   top: 80px;
-//   left: 0;
-//   h2 {
-//     font-size: 20px;
-//     color: #fff;
-//     margin: 15px 0 0 15px;
-//     padding-left: 15px;
-//     border-left: solid 3px #ffdc76;
-//   }
-//   ul {
-//     margin-top: 30px;
-//     li {
-//       width: 100px;
-//       font-size: 12px;
-//       line-height: 30px;
-//       margin: auto;
-//       border-bottom: solid 1px #ffdc76;
-//     }
-//   }
-// }
+.retention {
+  width: 22%;
+  height: 200px;
+  position: absolute;
+  top: 15%;
+  right: 0;
+  z-index: 999;
+  color: #fff;
+  opacity: 0.8;
+  //   border: solid 1px;
+  .progress {
+    div {
+      float: left;
+      padding: 7px;
+    }
+    p {
+      text-align: center;
+    }
+  }
+}
 </style>

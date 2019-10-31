@@ -7,14 +7,20 @@
           汽车出行
         </li>
         <li>
-          <el-dropdown v-if="statusData" trigger="click" @command="handleCommand">
+          <el-dropdown v-if="statusData === true" trigger="click" @command="handleCommand">
             <span class="el-dropdown-link">
               <i class="el-icon-location-outline el-icon--left"></i>
               {{city}}
               <i class="el-icon-arrow-down el-icon--right"></i>
               <!-- 切换城市 -->
             </span>
-            <el-dropdown-menu slot="dropdown">
+            <el-dropdown-menu v-if="mapShow === 0" slot="dropdown">
+              <el-dropdown-item command="075">成都</el-dropdown-item>
+              <el-dropdown-item command="233">西安</el-dropdown-item>
+              <el-dropdown-item command="125">海口</el-dropdown-item>
+            </el-dropdown-menu>
+            <el-dropdown-menu v-if="mapShow === 1" slot="dropdown">
+              <el-dropdown-item command="128">武汉</el-dropdown-item>
               <el-dropdown-item command="075">成都</el-dropdown-item>
               <el-dropdown-item command="233">西安</el-dropdown-item>
               <el-dropdown-item command="125">海口</el-dropdown-item>
@@ -46,10 +52,10 @@
             <el-menu-item index="/presentation">报告</el-menu-item>
 
 
-            <el-menu-item index="/orderData">订单数据</el-menu-item>
+            <!-- <el-menu-item index="/orderData">订单数据</el-menu-item> -->
             <el-menu-item index="/userData">用户数据</el-menu-item>
             <el-menu-item index="/heatMap">热力图</el-menu-item>
-            <el-menu-item index="/bookingForm">预约单</el-menu-item>
+            <!-- <el-menu-item index="/bookingForm">预约单</el-menu-item> -->
             <el-menu-item index="/system">系统监控</el-menu-item>
             <!-- <el-submenu index="2-4">
               <template slot="title">选项</template>
@@ -70,6 +76,7 @@ export default {
     return {
       statusData: true,
       activeIndex: "1",
+      mapShow: 0,
       navList: [
         { name: "概览", router: "/" },
         { name: "订单监控", router: "/orderMonitoring" },
@@ -87,16 +94,24 @@ export default {
   },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key);
-      console.log(keyPath);
-      if(key === '/'){
+      window.localStorage.path = key
+      if(key === '/' || key === '/heatMap'){
         this.statusData = true
+        if(key === '/heatMap'){
+          this.mapShow = 1
+          this.city = '武汉'
+        }else if (key === '/') {
+          this.mapShow = 0
+          this.city = '成都'
+        }
       } else{
         this.statusData = false
       }
     },
     handleCommand(command) {
-      if (command === "075") {
+      if (command === "128") {
+        this.city = "武汉";
+      } else if (command === "075") {
         this.city = "成都";
       } else if (command === "233") {
         this.city = "西安";
@@ -105,6 +120,20 @@ export default {
       }
       // 修改vuex中citycode
       this.$store.dispatch("setCitycode", command);
+    }
+  },
+  mounted(){
+    console.log(this.$store.state.cityStatus)
+    if(window.localStorage.path === '/' || window.localStorage.path ==='/heatMap'){
+      this.statusData = true
+      if(window.localStorage.path === '/heatMap'){
+          this.mapShow = 1
+          this.city = '武汉'
+        }else{
+          this.mapShow = 0
+        }
+    }else{
+      this.statusData = false
     }
   }
 };

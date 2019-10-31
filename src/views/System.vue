@@ -67,7 +67,12 @@
 
 <script>
 import { testData } from "@/api";
+import util from '@/api/request.js';
+import { async } from 'q';
 export default {
+  props:{
+    value: ''
+  },
   data() {
     return {
       tableDataAll: [],
@@ -84,6 +89,8 @@ export default {
     };
   },
   mounted() {
+    console.log('saxaxsaxsaxsa')
+    console.log(this.value)
     this.getDataAll()
   },
   methods: {
@@ -95,9 +102,11 @@ export default {
      var D = ''
      var E = ''
       console.log('接口是否可以调用')
-      await testData({}).then((res) =>{
-        console.log('res')
-        console.log(res) 
+      util.axios({
+        method: 'post',
+        data: {},
+        url: '/didiRedis/monitoring'
+      }).then(res =>{
         if (res.status === 200) {
           this.mBSituation = res.data.mBSituation
           this.BatchSituation = res.data.batchSituation
@@ -316,6 +325,10 @@ export default {
       }).catch(function (error) {
         console.log(error.request)
       });
+      // async xxx(){} await testData({}).then((res) =>{
+      // }).catch(function (error) {
+      //   console.log(error.request)
+      // });
     },
     initChart(data) {
       const option = {

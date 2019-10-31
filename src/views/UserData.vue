@@ -71,6 +71,7 @@
 </template>
 
 <script>
+import util from '@/api/request.js'
 import { proData, srsData, asData, rssData} from "@/api";
 export default {
   data() {
@@ -98,6 +99,7 @@ export default {
     console.log(y) 
     this.initMap();
     this.getAllData()
+    console.log(this.$store.state.citycode)
     // window.AMap.ControlBar.prototype.XU = function(a, b) {
     //   console.log("a:" + a + "," + b);
     //   b = (b / 90) * 60;
@@ -107,26 +109,44 @@ export default {
     // };
   },
   methods: {
-    async getAllData(){
-      await proData({}).then((res) => {
+   getAllData(){
+      util.axios({
+        method: 'post',
+        url: '/didi/pro',
+        data:{}
+      }).then(res =>{
         if (res.status === 200){
           this.proMessage = res.data[0]
         }
       })
-      await srsData({}).then((resSrs) =>{
+      // await proData({}).then((res) => {
+      //   if (res.status === 200){
+      //     this.proMessage = res.data[0]
+      //   }
+      // })
+      util.axios({
+        method: 'post',
+        url: '/didi/srs',
+        data:{}
+      }).then(resSrs =>{
         if(resSrs.status === 200){
-          this.percentage = parseInt(resSrs.data[0].dayStayRate.replace('%', ''))
-          this.percentage1 = parseInt(resSrs.data[0].weekStayRate.replace('%', ''))
-          this.percentage2 = parseInt(resSrs.data[0].monthStayRate.replace('%', ''))
+          this.percentage = parseInt(resSrs.data[0].dayStayRate.replace('%', '') * 100)
+          this.percentage2 = parseInt(resSrs.data[0].weekStayRate.replace('%', '') * 100)
+          this.percentage3 = parseInt(resSrs.data[0].monthStayRate.replace('%', '') * 100)
         }
       })
-      await asData({}).then((resAs) => {
+      util.axios({
+        method:'post',
+        data:{},
+        url: '/didi/as'
+      }).then(resAs =>{
+        console.log(resAs)
         if(resAs.status === 200){
           this.asData = [
             {
               value: resAs.data[0].DAU,
               name: '当日',
-              itemStyle: { color: "#0099FF" }
+              itemStyle: { color: "#FF6600" }
             },
             {
               value: resAs.data[0].WAU,
@@ -136,18 +156,23 @@ export default {
             {
               value: resAs.data[0].MAU,
               name: '当月',
-              itemStyle: { color: "#FF6600" }
+              itemStyle: { color: "#0099FF" }
             }
           ]
         }
+       this.initChart();
       })
-      await rssData({}).then((resRss) =>{
+      util.axios({
+        method: 'post',
+        url: '/didi/rss',
+        data:{}
+      }).then(resRss =>{
         if(resRss.status === 200){
           this.rssData = [
             {
               value: resRss.data[0].dayNewUserCount,
               name: '当日',
-              itemStyle: { color: "#0099FF" }
+              itemStyle: { color: "#FF6600" }
             },
             {
               value: resRss.data[0].weekNewUserCount,
@@ -157,13 +182,12 @@ export default {
             {
               value: resRss.data[0].monthNewUserCount,
               name: '当月',
-              itemStyle: { color: "#FF6600" }
+              itemStyle: { color: "#0099FF" }
             }
           ]
         }
+        this.initChart2();
       })
-      this.initChart();
-      this.initChart2();
     },
     initMap() {
       //初始化地图

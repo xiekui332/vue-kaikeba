@@ -3,15 +3,23 @@ import axios from "axios";
 // import store from "@/store";
 // import { getToken } from "@/utils/auth";
 
+let util = {};
+const baseUrl = 'api'
 // 1. 创建axios实例
-const service = axios.create({
-  // baseURL: process.env.VUE_APP_BASE_API, // url基础地址，解决不同数据源url变化问题
-  // withCredentials: true, // 跨域时若要发送cookies需设置该选项
-  timeout: 600000,// 超时
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-  }
+// const service = axios.create({
+//   // baseURL: process.env.VUE_APP_BASE_API, // url基础地址，解决不同数据源url变化问题
+//   // withCredentials: true, // 跨域时若要发送cookies需设置该选项
+//   timeout: 600000,// 超时
+//   headers: {
+//     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+//   }
 
+// });
+util.axios = axios.create({
+  // xsrfHeaderName: 'X-XSRF-TOKEN' + window.localStorage.XSRF_TOKEN,
+  baseURL: baseUrl,
+  timeout: 600000,
+  withCredentials: true
 });
 
 // 2. 请求拦截
@@ -81,4 +89,4 @@ const service = axios.create({
   // }
 // );
 
-export default service;
+export default util;

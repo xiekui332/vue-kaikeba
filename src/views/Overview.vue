@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import AMap from 'AMap'
+// import AMap from 'AMap'
 import { orderOverview, orderGps, hourOrderCount } from "@/api";
 export default {
   data() {
