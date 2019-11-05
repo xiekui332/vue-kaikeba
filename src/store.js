@@ -5,7 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    citycode: "075",
+    citycode: "420100",
     cityStatus: false
   },
   mutations: {

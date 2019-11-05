@@ -79,9 +79,8 @@
 import "echarts/map/js/china.js";
 import $axios from 'axios';
 import jsonCity from "echarts/map/json/china-cities";
-// import "@/utils/wuhan"
-import {proData,srsData} from "@/api"
-import util from '@/api/request.js';
+// import {proData,srsData} from "@/api"
+// import util from '@/api/request.js';
 import jquery from 'jquery'
 export default {
   data() {
@@ -92,6 +91,7 @@ export default {
       percentage2: 70,
       percentage3: 40,
       options:{},
+      citycode: '',
       wuhanOptions:{},
       chengduOptions:{},
       xianOptions:{},
@@ -113,9 +113,42 @@ export default {
       list: ["列表1", "列表1", "列表1", "列表1", "列表1", "列表1"]
     };
   },
+  computed: {
+      listenshowpage1() {
+        return this.$store.state.citycode;
+      }
+  },
+    watch:{
+      listenshowpage1:{
+        handler(curVal,oldVal){
+          console.log(curVal)
+          console.log(oldVal)
+          this.getRightOrder(curVal)
+          if(curVal === '420100'){
+            this.$axios.get('api/region').then((res) => {
+              this.options = res.data.data
+              this.initChart();
+            }, function(err) {
+              console.log(err)
+            })
+          }
+        },
+        deep:true
+      },
+  },
   methods: {
+    getMapdata (){
+      this.util.axios({
+        method: 'post',
+        url: '/didi/hars',
+        data: {address_code: 370683}
+      }).then(res =>{
+        console.log('地图数据')
+        console.log(res)
+      })
+    },
     getTitleData (){
-      util.axios({
+      this.util.axios({
         method:"post",
         url:"/didi/pro",
         data:{},
@@ -130,22 +163,21 @@ export default {
       //   }
       // })
     },
-    getRightOrder(){
-      console.log(this.$store.state.citycode === '128')
-      let citycode = this.$store.state.citycode
+    getRightOrder(data){
+      console.log(data)
       let cityname = ''
-      if (citycode === '128') {
+      if (data === '420100') {
         cityname = '湖北省武汉市'
-      } else if (citycode === '075'){
+      } else if (data === '510100'){
         cityname = '四川省成都市'
-      }  else if(citycode === '233'){
+      }  else if(data === '610100'){
         cityname = '陕西省西安市'
-      } else if(citycode === '海口'){
+      } else if(data === '460100'){
         cityname = '海南省海口市'
       }
-      util.axios({
+      this.util.axios({
         method: 'post',
-        data:{name: cityname},
+        params:{city_name: cityname},
         url: '/didi/fspos'
       }).then(res =>{
         this.resultData = res.data[0]
@@ -153,12 +185,10 @@ export default {
         this.percentage1 = parseInt((this.resultData._week_comple_rate))
         this.percentage2 = parseInt((this.resultData._month_comple_rate))
         this.percentage3 = parseInt((this.resultData._quarter_comple_rate))
-        console.log(this.resultData)
       })
     },
     initChart() {
-     console.log(this.options)
-      var jsonData = jsonCity
+      // var jsonData = jsonCity
       // 基于准备好的dom，初始化echarts图表
       this.myChart = this.$echarts.init(document.getElementById("chart"));
        this.$echarts.registerMap('shanghai', this.options);
@@ -363,11 +393,14 @@ export default {
   },
   mounted() {
     this.$store.dispatch('setCityStatus', true)
-    this.$store.dispatch('setCitycode', '128')
+    this.citycode = this.$store.state.citycode
+    this.getRightOrder(this.citycode)
     this.getTitleData()
-    this.getRightOrder()
+    this.$nextTick(()=>{})
   },
   created(){
+    this.getMapdata()
+    console.log(this.$store.state.cityCode)
     this.$axios.get('api/region').then((res) => {
       this.options = res.data.data
       this.initChart();

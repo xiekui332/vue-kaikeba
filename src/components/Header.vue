@@ -15,15 +15,15 @@
               <!-- 切换城市 -->
             </span>
             <el-dropdown-menu v-if="mapShow === 0" slot="dropdown">
-              <el-dropdown-item command="075">成都</el-dropdown-item>
-              <el-dropdown-item command="233">西安</el-dropdown-item>
-              <el-dropdown-item command="125">海口</el-dropdown-item>
+              <el-dropdown-item command="510100">成都</el-dropdown-item>
+              <el-dropdown-item command="610100">西安</el-dropdown-item>
+              <el-dropdown-item command="460100">海口</el-dropdown-item>
             </el-dropdown-menu>
             <el-dropdown-menu v-if="mapShow === 1" slot="dropdown">
-              <el-dropdown-item command="128">武汉</el-dropdown-item>
-              <el-dropdown-item command="075">成都</el-dropdown-item>
-              <el-dropdown-item command="233">西安</el-dropdown-item>
-              <el-dropdown-item command="125">海口</el-dropdown-item>
+              <el-dropdown-item command="420100">武汉</el-dropdown-item>
+              <el-dropdown-item command="510100">成都</el-dropdown-item>
+              <el-dropdown-item command="610100">西安</el-dropdown-item>
+              <el-dropdown-item command="460100">海口</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </li>
@@ -100,22 +100,24 @@ export default {
         if(key === '/heatMap'){
           this.mapShow = 1
           this.city = '武汉'
+          this.$store.dispatch('setCitycode', '420100')
         }else if (key === '/') {
           this.mapShow = 0
           this.city = '成都'
+          this.$store.despatch('setCitycode', '610100')
         }
       } else{
         this.statusData = false
       }
     },
     handleCommand(command) {
-      if (command === "128") {
+      if (command === "420100") {
         this.city = "武汉";
-      } else if (command === "075") {
+      } else if (command === "510100") {
         this.city = "成都";
-      } else if (command === "233") {
+      } else if (command === "610100") {
         this.city = "西安";
-      } else if (command === "125") {
+      } else if (command === "460100") {
         this.city = "海口";
       }
       // 修改vuex中citycode
@@ -129,6 +131,7 @@ export default {
       if(window.localStorage.path === '/heatMap'){
           this.mapShow = 1
           this.city = '武汉'
+          this.$store.dispatch('setCitycode', '420100')
         }else{
           this.mapShow = 0
         }

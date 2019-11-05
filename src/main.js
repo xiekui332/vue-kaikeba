@@ -7,7 +7,7 @@ import axios from "axios";
 
 import echarts from "echarts";
 import store from './store';
-
+import util from '@/api/request.js'
 import jquery from "jquery";
 
 Vue.config.productionTip = false;
@@ -15,6 +15,8 @@ Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
 // 将echarts挂载在Vue原型
 Vue.prototype.$echarts = echarts;
+// 将util挂载vue原型
+Vue.prototype.util = util
 Vue.prototype.$jquery = jquery;
 
 
