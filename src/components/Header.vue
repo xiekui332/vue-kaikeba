@@ -158,11 +158,11 @@ export default {
   min-width: 1200px;
 }
 .header_left {
-  width: 30%;
+  width: 32%;
   float: left;
   // background:#ccc;
   .logo {
-    width: 100px;
+    width: 120px;
     font-size: 20px;
     font-weight: 500;
     padding-left: 40px;

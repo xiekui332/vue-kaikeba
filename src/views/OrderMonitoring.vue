@@ -39,7 +39,7 @@
           <el-progress
             type="dashboard"
             :percentage="percentage"
-            :color="colors"
+            color="#f56c6c"
             :stroke-width="15"
             :width="100"
           ></el-progress>
@@ -49,7 +49,7 @@
           <el-progress
             type="dashboard"
             :percentage="percentage1"
-            :color="colors"
+            color="#e6a23c"
             :stroke-width="15"
             :width="100"
           ></el-progress>
@@ -59,7 +59,7 @@
           <el-progress
             type="circle"
             :percentage="percentage2"
-            :color="colors"
+            color="#5cb87a"
             :stroke-width="15"
             :width="100"
           ></el-progress>
@@ -69,7 +69,7 @@
           <el-progress
             type="circle"
             :percentage="percentage3"
-            :color="colors"
+            color="#6f7ad3"
             :stroke-width="15"
             :width="100"
           ></el-progress>
@@ -232,10 +232,15 @@ export default {
       util.axios({
         method: 'post',
         data:{},
-        url: '/didi/fspos'
+        url: '/didi/fspos1'
       }).then(res =>{
         console.log('完成率')
         console.log(res)
+        this.resultData = res.data[0]
+        this.percentage = parseInt((this.resultData._day_comple_rate))
+        this.percentage1 = parseInt((this.resultData._week_comple_rate))
+        this.percentage2 = parseInt((this.resultData._month_comple_rate))
+        this.percentage3 = parseInt((this.resultData._quarter_comple_rate))
       })
     },
     initChart() {

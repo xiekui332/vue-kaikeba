@@ -76,11 +76,8 @@
 </template>
 
 <script>
-import "echarts/map/js/china.js";
+// import "echarts/map/js/china.js";
 import $axios from 'axios';
-import jsonCity from "echarts/map/json/china-cities";
-// import {proData,srsData} from "@/api"
-// import util from '@/api/request.js';
 import jquery from 'jquery'
 export default {
   data() {
@@ -139,9 +136,9 @@ export default {
   methods: {
     getMapdata (){
       this.util.axios({
-        method: 'post',
+        method: 'get',
         url: '/didi/hars',
-        data: {address_code: 370683}
+        params: {address_code: '420100'}
       }).then(res =>{
         console.log('地图数据')
         console.log(res)
@@ -176,7 +173,7 @@ export default {
         cityname = '海南省海口市'
       }
       this.util.axios({
-        method: 'post',
+        method: 'get',
         params:{city_name: cityname},
         url: '/didi/fspos'
       }).then(res =>{
@@ -188,56 +185,68 @@ export default {
       })
     },
     initChart() {
-      // var jsonData = jsonCity
       // 基于准备好的dom，初始化echarts图表
       this.myChart = this.$echarts.init(document.getElementById("chart"));
-       this.$echarts.registerMap('shanghai', this.options);
+       this.$echarts.registerMap('wuhan', this.wuhanOptions);
       this.myChart.hideLoading();
       var geoCoordMap = {
-          '上海市区': [121.430317, 31.222771],
-            '闵行区': [121.375972, 31.111658],
-          '宝山区': [121.489934, 31.398896],
-          '嘉定区': [121.250333, 31.383524],
-        '浦东新区': [121.567706, 31.245944],
-          '金山区': [121.330736, 30.724697],
-          '松江区': [121.223543, 31.03047],
-          '青浦区': [121.113021, 31.151209],
-          '奉贤区': [121.458472, 30.912345],
-          '崇明区': [121.397516, 31.626946],
+          '黄陂区': [114.374025,30.874155],
+            '新洲区': [114.802108,30.842149],
+          '江岸区': [114.30304,30.594911],
+          '蔡甸区': [114.029341,30.582186],
+        '汉南区': [114.08124,30.309637],
+          '江汉区': [114.283109,30.578771],
+          '青山区': [114.39707,30.634215],
+          '武昌区': [114.307344,30.546536],
+          '江夏区': [114.313961,30.349045],
+          '洪山区': [114.400718,30.504259],
+          '东西湖区': [114.142483,30.622467],
+          '硚口区': [114.264568,30.57061],
+          '汉阳区': [114.265807,30.549326],
       }
       var data =  [
               {
-                  name: '上海市区',
+                  name: '黄陂区',
                   value: 85
               },
               {
-                  name: '闵行区',
+                  name: '新洲区',
                   value: 70
               }, {
-                  name: '宝山区',
+                  name: '江岸区',
                   value: 75
               }, {
-                  name: '嘉定区',
+                  name: '蔡甸区',
                   value: 80
               }, {
-                  name: '浦东新区',
+                  name: '汉南区',
                   value: 78
               }, {
-                  name: '金山区',
+                  name: '江汉区',
                   value: 77
               }, {
-                  name: '松江区',
+                  name: '青山区',
                   value: 79
               }, {
-                  name: '青浦区',
+                  name: '武昌区',
                   value: 85
               }, {
-                  name: '奉贤区',
+                  name: '江夏区',
                   value: 81
               }, {
-                  name: '崇明区',
+                  name: '洪山区',
                   value: 83
-              }];
+              },{
+                  name: '东西湖区',
+                  value: 50
+              },{
+                  name: '硚口区',
+                  value: 65
+              },{
+                  name: '汉阳区',
+                  value: 89
+              }
+              ];
 
       var convertData = function(data) {
           var res = [];
@@ -273,9 +282,9 @@ export default {
                 return res;
             }
         },
-        legend: {
-            orient: 'vertical',
-            top: 'top',
+        legend: { //图例
+            orient: 'vertical', //图例方向
+            top: 'top', //如果 top 的值为'top', 'middle', 'bottom'，组件会根据相应的位置自动对齐
             left: 'right',
             data: ['credit_pm2.5'],
             textStyle: {
@@ -293,15 +302,15 @@ export default {
             textStyle: {
                 color: '#fff'
             },
-            inRange: {
+            inRange: { //定义 在选中范围中 的视觉元素。（用户可以和 visualMap 组件交互，用鼠标或触摸选择范围）
                 color: ['#5cd2c3','#419bd3','#7a95d2','#5dcbdc','#838dcd','#5de9b1','#5dc6df','#5db8ea','#2bbc90','#5dc4e3']
 
             }
         },
         geo: {
-            map: 'shanghai',
-            left: '350',
-            roam: true,
+            map: 'wuhan',
+            left: '500',
+            roam: false,
             itemStyle: { //地图区域的多边形 图形样式
                 color: '#fff',
                 normal: { //是图形在默认状态下的样式
@@ -325,7 +334,7 @@ export default {
         series: [{
                 name: 'credit_pm2.5',
                 type: 'effectScatter',
-                left: '150',
+                left: '500',
                 coordinateSystem: 'geo',
                 data: convertData(data),
                 symbolSize: function(val) {
@@ -354,8 +363,8 @@ export default {
                 zlevel: 1
             }, {
                 type: 'map',
-                mapType: 'shanghai',
-                left: '350',
+                mapType: 'wuhan',
+                left: '500',
                 // zoom: 1.2,
                 roam: false, //是否开启鼠标缩放和平移漫游
                 itemStyle: { //地图区域的多边形 图形样式
@@ -378,8 +387,8 @@ export default {
                                 color: 'transparent'
                             },
                         },
-                        borderColor: '#28729f',
-                        areaColor: '#9ea9f7',
+                        borderColor: '',
+                        areaColor: '',
                     }
                 },
 
@@ -403,12 +412,12 @@ export default {
     console.log(this.$store.state.cityCode)
     this.$axios.get('api/region').then((res) => {
       this.options = res.data.data
-      this.initChart();
     }, function(err) {
       console.log(err)
     })
     this.$axios.get('/api/wuhan').then((ress) => {
       this.wuhanOptions = ress.data.data
+      this.initChart();
     }, function(err) {
       console.log(err)
     })
