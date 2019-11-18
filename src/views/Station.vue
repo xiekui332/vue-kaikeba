@@ -73,7 +73,7 @@ export default {
                     text:' ',
                     textAlign:'center',
                     verticalAlign:'middle', //middle 、bottom
-                    draggable:true,
+                    draggable:false, //数据是否可拖动 
                     cursor:'pointer',
                     angle:10,
                     style:{

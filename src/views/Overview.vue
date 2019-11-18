@@ -3,22 +3,22 @@
   <div id="container">
     <div class="left">
       <div class="order_info">
-        <h2>订单概况</h2>
+      <h2>订单概况</h2>
         <ul>
-          <li>订单总数: {{orderOverview.orderCount}}</li>
-          <li>乘车人数: {{orderOverview.orderPassengerCount}}</li>
-          <li>累计轨迹点数: {{pointsCount}}</li>
+          <li><i class="el-icon-document"></i>订单总数: {{orderOverview.orderCount}}</li>
+          <li><i class="el-icon-user-solid"></i>乘车人数: {{orderOverview.orderPassengerCount}}</li>
+          <li><i class="el-icon-location"></i>累计轨迹点数: {{pointsCount}}</li>
           <!-- <li>疲劳报警: {{orderOverview.fatigueAlarmCount}}</li> -->
         </ul>
+      </div>
+      <div class="order_count">
         <h2>
           订单数量变化
-          <p  @click="dialogTableVisible = true">详情</p>
-        </h2>
+          <p  @click="dialogTableVisible = true">详情</p></h2>
+          <div id="myChartOne"></div>
       </div>
 
-      <div id="myChartOne"></div>
-
-      <div class="warn">
+      <!-- <div class="warn">
         <h2>疲劳报警</h2>
         <h3>TOP 10</h3>
         <ul>
@@ -28,7 +28,7 @@
           <li>xxx4 司机 22h</li>
           <li>xxx5 司机 22h</li>
         </ul>
-      </div>
+      </div> -->
     </div>
 
     <div class="right">
@@ -81,10 +81,13 @@ export default {
   data() {
     return {
       dialogTableVisible: false,
-      orderOverview: {}, //订单概况
+      orderOverview: {
+        orderCount: 589,
+        orderPassengerCount: 976
+      }, //订单概况
       orderGps: [], //实时轨迹
       markers: [],
-      pointsCount: 0,
+      pointsCount: 1032,
       // new Date("2016-11-01 15:00:00") ||
       startTimeDate: "",
       endTime: "",
@@ -152,27 +155,28 @@ export default {
     // this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
     //  console.log("this.startTime",this.startTime)
     // 请求订单数
-    this.getOrderOverview();
-    await this.getHourOrderCount();
+    // this.getOrderOverview();
+    // await this.getHourOrderCount();
     // var realtimeTrackInterval = window.setInterval(this.realtimeTrack,5000);
   },
   mounted() {
-    this.initMap();
-    this.initChart3();
-    this.initChart4();
-    this.initChart5();
+    this.initChart()
+    // this.initMap();
+    // this.initChart3();
+    // this.initChart4();
+    // this.initChart5();
     console.log("设置正北方向......");
-    window.AMap.ControlBar.prototype.XU = function(a, b) {
-      console.log("a:" + a + "," + b);
-      b = (b / 90) * 60;
-      this.GK || (b = 0);
-      // this.g.su.style.transform = this.g.su.style.WebkitTransform =
-      //   "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
-    };
-    console.log("map.ControlBar:" + this.map);
+    // window.AMap.ControlBar.prototype.XU = function(a, b) {
+    //   console.log("a:" + a + "," + b);
+    //   b = (b / 90) * 60;
+    //   this.GK || (b = 0);
+    //   // this.g.su.style.transform = this.g.su.style.WebkitTransform =
+    //   //   "rotateX(-" + b + "deg) rotateZ(" + a + "deg)";
+    // };
+    // console.log("map.ControlBar:" + this.map);
 
-    var realtimeTrackInterval = window.setInterval(this.realtimeTrack, 2000);
-    var realtimeTrackInterval = window.setInterval(this.getHourOrderCount, 2000);
+    // var realtimeTrackInterval = window.setInterval(this.realtimeTrack, 2000);
+    // var realtimeTrackInterval = window.setInterval(this.getHourOrderCount, 2000);
   },
   methods: {
     // 开始日期
@@ -185,40 +189,40 @@ export default {
     },
     // 请求订单数
     async getOrderOverview() {
-      const {
-        status,
-        data: { data }
-      } = await orderOverview({
-        cityCode: "075",
-        startTime: this.startTime,
-        endTime: "2016-11-01 23:38:14"
-        // endTime: "2017-05-19 15:06:20"
-      });
-      if (status === 200) {
-        this.orderOverview = data;
-      }
+      // const {
+      //   status,
+      //   data: { data }
+      // } = await orderOverview({
+      //   cityCode: "075",
+      //   startTime: this.startTime,
+      //   endTime: "2016-11-01 23:38:14"
+      //   // endTime: "2017-05-19 15:06:20"
+      // });
+      // if (status === 200) {
+      //   this.orderOverview = data;
+      // }
     },
     // 获取订单数量变化
     async getHourOrderCount() {
-      const ret = await hourOrderCount({
-        cityCode: "075",
-        startTime: this.startTime,
-        endTime: "2016-11-01 23:38:14"
-      });
-      this.hourOrderCount = ret.data.data;
-      console.log(this.hourOrderCount)
-      for (var item in this.hourOrderCount) {
-        this.keyData.push(item);
-        // split("-")[2].split("_")[1]
-        // this.itemData.push(this.hourOrderCount[o]);
-      }
-      this.keyData.sort();
-      for (var index in this.keyData) {
-        this.itemData.push(this.hourOrderCount[this.keyData[index]]);
-      }
-      for(var i=0;i< this.keyData.length;i++){
-            this.keyData2.push(this.keyData[i].split("-")[2].split("_")[1])
-      }
+      // const ret = await hourOrderCount({
+      //   cityCode: "075",
+      //   startTime: this.startTime,
+      //   endTime: "2016-11-01 23:38:14"
+      // });
+      // this.hourOrderCount = ret.data.data;
+      // console.log(this.hourOrderCount)
+      // for (var item in this.hourOrderCount) {
+      //   this.keyData.push(item);
+      //   // split("-")[2].split("_")[1]
+      //   // this.itemData.push(this.hourOrderCount[o]);
+      // }
+      // this.keyData.sort();
+      // for (var index in this.keyData) {
+      //   this.itemData.push(this.hourOrderCount[this.keyData[index]]);
+      // }
+      // for(var i=0;i< this.keyData.length;i++){
+      //       this.keyData2.push(this.keyData[i].split("-")[2].split("_")[1])
+      // }
       // console.log(this.keyData2)
       // console.log(this.itemData)
       // 
@@ -227,31 +231,31 @@ export default {
     },
     // 获取当前城市的实时轨迹
     async realtimeTrack() {
-      console.log("realtimeTrack:请求实时轨迹");
-      const ret = await orderGps({
-        cityCode: "075",
-        startTime: this.startTime,
-        endTime: this.endTime
-      });
-      // console.log("ret:" + ret);
-      if (ret.status === 200) {
-        this.orderGps = ret.data.data;
-        // console.log(ret.data.data)
-        // console.log(111)
-        this.drawCircleMarker(ret.data.data);
-        console.log("data.data.length", ret.data.data.length);
-        this.pointsCount = this.pointsCount + ret.data.data.length;
-        this.startTime = this.endTime;
-        this.endTimeDate = new Date(this.endTime);
-        this.t = this.endTimeDate.getTime();
-        this.t += 120000;
-        this.endTimeDate = new Date(this.t);
+      // console.log("realtimeTrack:请求实时轨迹");
+      // const ret = await orderGps({
+      //   cityCode: "075",
+      //   startTime: this.startTime,
+      //   endTime: this.endTime
+      // });
+      // // console.log("ret:" + ret);
+      // if (ret.status === 200) {
+      //   this.orderGps = ret.data.data;
+      //   // console.log(ret.data.data)
+      //   // console.log(111)
+      //   this.drawCircleMarker(ret.data.data);
+      //   console.log("data.data.length", ret.data.data.length);
+      //   this.pointsCount = this.pointsCount + ret.data.data.length;
+      //   this.startTime = this.endTime;
+      //   this.endTimeDate = new Date(this.endTime);
+      //   this.t = this.endTimeDate.getTime();
+      //   this.t += 120000;
+      //   this.endTimeDate = new Date(this.t);
 
-        // this.startTimeDate = new Date(this.startTime);
-        console.log("new starttime", this.startTime);
-        console.log("new endtime", this.endTime);
-        this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
-      }
+      //   // this.startTimeDate = new Date(this.startTime);
+      //   console.log("new starttime", this.startTime);
+      //   console.log("new endtime", this.endTime);
+      //   this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
+      // }
     },
     initMap() {
       //初始化地图
@@ -287,6 +291,15 @@ export default {
     },
     initChart() {
       const option = {
+        tooltip : {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
         xAxis: {
           axisLine: {
             lineStyle: {
@@ -302,7 +315,7 @@ export default {
           },
           type: "category",
           boundaryGap: false,
-          data: this.keyData2
+          data : ['周一','周二','周三','周四','周五','周六','周日']
         },
         yAxis: {
           axisLine: {
@@ -323,11 +336,48 @@ export default {
           }
         },
         series: [
-          {
-            data: this.itemData,
-            type: "line",
-            areaStyle: {}
-          }
+            // data: this.itemData,
+        {
+            name:'邮件营销',
+            type:'line',
+            stack: '总量',
+            areaStyle: {},
+            data:[120, 132, 101, 134, 90, 230, 210]
+        },
+        {
+            name:'联盟广告',
+            type:'line',
+            stack: '总量',
+            areaStyle: {},
+            data:[220, 182, 191, 234, 290, 330, 310]
+        },
+        {
+            name:'视频广告',
+            type:'line',
+            stack: '总量',
+            areaStyle: {},
+            data:[150, 232, 201, 154, 190, 330, 410]
+        },
+        {
+            name:'直接访问',
+            type:'line',
+            stack: '总量',
+            areaStyle: {normal: {}},
+            data:[320, 332, 301, 334, 390, 330, 320]
+        },
+            {
+            name:'搜索引擎',
+            type:'line',
+            stack: '总量',
+            label: {
+                normal: {
+                    show: true,
+                    position: 'top'
+                }
+            },
+            areaStyle: {normal: {}},
+            data:[820, 932, 901, 934, 1290, 1330, 1320]
+        }
         ]
       };
 
@@ -351,7 +401,8 @@ export default {
           },
           type: "category",
           boundaryGap: false,
-          data: this.keyData2
+          // data: this.keyData2
+          data: []
           // data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         },
         yAxis: {
@@ -384,7 +435,8 @@ export default {
         series: [
           {
             // data: ["820", "932", "901", "934", "1290", "1330", "1320"],
-            data: this.itemData,
+            // data: this.itemData,
+            data: [],
             type: "line",
             areaStyle: {}
           }
@@ -573,7 +625,7 @@ export default {
   width: 100%;
   height: 100%;
   h2 {
-    font-size: 20px;
+    font-size: 16px;
     color: #fff;
     // margin: 15px;
     margin: 15px 0 15px 15px;
@@ -588,7 +640,7 @@ export default {
   }
 }
 .left {
-  width: 20%;
+  width: 30%;
   height: 90%;
   // border: solid 1px #fff;
   position: absolute;
@@ -605,16 +657,36 @@ export default {
     padding: 1px;
     ul li {
       list-style: outside;
+      color: #009FD9;
       margin-left: 30px;
       font-size: 12px;
       line-height: 20px;
+      i {
+        margin-right: 10px
+      }
+    }
+  }
+
+  .order_count {
+    height: 50%;
+    background: #181b2c;
+    // background: #ccc;
+    opacity: 0.8;
+    padding: 1px;
+    margin-top: 10px;
+    h2 {
+      margin-top: 10px;
+      p {
+        cursor: pointer;
+        color: green
+      }
     }
   }
   #myChartOne,
   #myChartTwo {
     // width: 100%;
-    height: 36%;
-    margin-top: 10px;
+    height: 200px;
+    margin-top: 5px;
     background: #181b2c;
     // background:#f00;
     opacity: 0.8;

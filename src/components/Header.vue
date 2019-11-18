@@ -42,28 +42,28 @@
         >
           <el-menu-item v-for="item in navList" :index="item.router" :key="item.name">{{item.name}}</el-menu-item>
           <!-- <el-menu-item>其余</el-menu-item> -->
-          <el-submenu index="2">
+          <!-- <el-submenu index="2">
             <template slot="title">其余</template>
             <el-menu-item index="/trip">出行活跃区域统计</el-menu-item>
             <el-menu-item index="/police">疲劳驾驶报警</el-menu-item>
             <el-menu-item index="/supplyDemand">供需分析</el-menu-item>
             <el-menu-item index="/trafficJam">道路拥堵分析</el-menu-item>
             <el-menu-item index="/order">订单查询</el-menu-item>
-            <el-menu-item index="/presentation">报告</el-menu-item>
+            <el-menu-item index="/presentation">报告</el-menu-item> -->
 
 
             <!-- <el-menu-item index="/orderData">订单数据</el-menu-item> -->
-            <el-menu-item index="/userData">用户数据</el-menu-item>
-            <el-menu-item index="/heatMap">热力图</el-menu-item>
+            <!-- <el-menu-item index="/userData">用户数据</el-menu-item>
+            <el-menu-item index="/heatMap">热力图</el-menu-item> -->
             <!-- <el-menu-item index="/bookingForm">预约单</el-menu-item> -->
-            <el-menu-item index="/system">系统监控</el-menu-item>
+            <!-- <el-menu-item index="/system">系统监控</el-menu-item> -->
             <!-- <el-submenu index="2-4">
               <template slot="title">选项</template>
               <el-menu-item index="2-4-1">选项1</el-menu-item>
               <el-menu-item index="2-4-2">选项2</el-menu-item>
               <el-menu-item index="2-4-3">选项3</el-menu-item>
             </el-submenu> -->
-          </el-submenu>
+          <!-- </el-submenu> -->
         </el-menu>
       </div>
     </div>
@@ -83,8 +83,11 @@ export default {
         { name: "轨迹监控", router: "/trajectory" },
         { name: "虚拟车站", router: "/station" },
         { name: "出行迁途", router: "/movingway" },
-        { name: "订单报表", router: "/orderStatement" },
-        { name: "用户乘车行为统计", router: "/behavior" },
+        { name: "用户数据", router: "/userData" },
+        { name: "热力图", router: "/heatMap" },
+        { name: "系统监控", router: "/system" },
+        // { name: "订单报表", router: "/orderStatement" },
+        // { name: "用户乘车行为统计", router: "/behavior" },
         // { name: "其余", router: "/behavior" }
         // { name: "用户数据", router: "/behavior" },
         // { name: "热力图", router: "/behavior" }
