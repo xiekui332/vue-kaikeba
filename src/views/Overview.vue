@@ -32,10 +32,11 @@
     </div>
 
     <div class="right">
+      <div class="speed">
       <h2>平均行车速度</h2>
-      <div id="myChartThree"></div>
-
-      <div class="right_two">
+        <div id="myChartThree"></div>
+      </div>
+      <!-- <div class="right_two">
         <h2>拥堵概览</h2>
         <div class="chart">
           <div id="myChartFour"></div>
@@ -53,7 +54,7 @@
             <li>xxxxxxxxxxxxxxxxxxxxx街道</li>
           </ul>
         </div>
-      </div>
+      </div> -->
     </div>
     <!-- 日期控件 -->
     <div class="date">
@@ -161,7 +162,8 @@ export default {
   },
   mounted() {
     this.initChart()
-    // this.initMap();
+    this.initChart3()
+    this.initMap();
     // this.initChart3();
     // this.initChart4();
     // this.initChart5();
@@ -640,7 +642,7 @@ export default {
   }
 }
 .left {
-  width: 30%;
+  width: 40%;
   height: 90%;
   // border: solid 1px #fff;
   position: absolute;
@@ -659,7 +661,8 @@ export default {
       list-style: outside;
       color: #009FD9;
       margin-left: 30px;
-      font-size: 12px;
+      margin-top: 10px;
+      font-size: 18px;
       line-height: 20px;
       i {
         margin-right: 10px
@@ -668,12 +671,12 @@ export default {
   }
 
   .order_count {
-    height: 50%;
+    height: 60%;
     background: #181b2c;
     // background: #ccc;
     opacity: 0.8;
     padding: 1px;
-    margin-top: 10px;
+    margin-top: 70px;
     h2 {
       margin-top: 10px;
       p {
@@ -684,9 +687,9 @@ export default {
   }
   #myChartOne,
   #myChartTwo {
-    // width: 100%;
-    height: 200px;
-    margin-top: 5px;
+    width: 100%;
+    height: 250px;
+    // margin-top: 5px;
     background: #181b2c;
     // background:#f00;
     opacity: 0.8;
@@ -707,16 +710,32 @@ export default {
   }
 }
 .right {
-  width: 30%;
+  width: 40%;
   height: 90%;
   position: absolute;
-  top: 70px;
+  top: 270px;
   right: 0;
   color: #fff;
   z-index: 999;
+  .speed {
+    height: 60%;
+    width: 100%;
+    background: #181b2c;
+    // background: #ccc;
+    opacity: 0.8;
+    padding: 1px;
+    margin-top: 10px;
+    h2 {
+      margin-top: 10px;
+      p {
+        cursor: pointer;
+        color: green
+      }
+    }
+  }
   // border: solid 1px #fff;
   #myChartThree {
-    height: 25%;
+    height: 250px;
     background: #181b2c;
     // background: #f00;
     opacity: 0.8;

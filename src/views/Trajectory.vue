@@ -90,13 +90,13 @@ export default {
     console.log("请求实时订单列表");
 
     console.log("citycode:" + this.getCitycode);
-    const {
-      status,
-      data: { data }
-    } = await realtimeOrder({ cityCode: "075" });
-    if (status === 200) {
-      this.realOrderList = data;
-    }
+    // const {
+    //   status,
+    //   data: { data }
+    // } = await realtimeOrder({ cityCode: "075" });
+    // if (status === 200) {
+    //   this.realOrderList = data;
+    // }
 
     // });
     // $("#city").change(function () {

@@ -107,7 +107,7 @@ export default {
         }else if (key === '/') {
           this.mapShow = 0
           this.city = '成都'
-          this.$store.despatch('setCitycode', '610100')
+          this.$store.dispatch('setCitycode', '610100')
         }
       } else{
         this.statusData = false
