@@ -15,7 +15,7 @@ module.exports = {
   },
   publicPath: "./",
   // 打包输出目录
-  outputDir: "dist",
+  outputDir: "static",
   devServer: {
     before(app) {
 			app.get('/api/region', (req, res) => {

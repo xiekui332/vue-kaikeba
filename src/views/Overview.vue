@@ -14,7 +14,7 @@
       <div class="order_count">
         <h2>
           订单数量变化
-          <p  @click="dialogTableVisible = true">详情</p></h2>
+          <p  @click="open()">详情</p></h2>
           <div id="myChartOne"></div>
       </div>
 
@@ -69,7 +69,7 @@
     </div>
 
     <!-- 详情弹框 -->
-    <el-dialog title="详情" width=60% :visible.sync="dialogTableVisible">
+    <el-dialog title="详情" width=70% :visible.sync="dialogTableVisible">
       <div id="myChartTwo" style="width:100%;height:300px;z-index:999"></div>
     </el-dialog>
   </div>
@@ -161,9 +161,12 @@ export default {
     // var realtimeTrackInterval = window.setInterval(this.realtimeTrack,5000);
   },
   mounted() {
-    this.initChart()
+    this.getHourOrderCount()
+    this.getOrderOverview();
+    // this.initChart()
     this.initChart3()
     this.initMap();
+    this.realtimeTrack()
     // this.initChart3();
     // this.initChart4();
     // this.initChart5();
@@ -177,10 +180,27 @@ export default {
     // };
     // console.log("map.ControlBar:" + this.map);
 
-    // var realtimeTrackInterval = window.setInterval(this.realtimeTrack, 2000);
-    // var realtimeTrackInterval = window.setInterval(this.getHourOrderCount, 2000);
+    // var realtimeTrackInterval = window.setInterval(this.realtimeTrack, 5000);
+    // var realtimeTrackInterval = window.setInterval(this.getHourOrderCount, 5000);
   },
   methods: {
+    open (){
+      let data = []
+      var b = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      this.dialogTableVisible = true
+      console.log(this.hourOrderCount)
+      for (let key in this.hourOrderCount){
+        console.log(key)
+        console.log('+++++')
+        data.push(parseInt(key.split("-")[2].split("_")[1]))
+        b.splice(parseInt(key.split("-")[2].split("_")[1]),1,parseInt(this.hourOrderCount[key]));
+      }
+      var a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+      console.log(b)
+      this.$nextTick(() => {
+        this.initChart2(a,b)
+      })
+    },
     // 开始日期
     changeDate(startTimeDate) {
       console.log(startTimeDate);
@@ -190,7 +210,18 @@ export default {
       // console.log("value", value);
     },
     // 请求订单数
-    async getOrderOverview() {
+    getOrderOverview() {
+      this.util.axios({
+        method: 'post',
+        url: 'http://10.20.3.179:8080/track/orderOverview',
+        data: {
+          "cityCode":"510100",
+          "startTime":"2016-11-01  15:06:14",
+          "endTime":"2016-11-01  16:06:20"
+        }
+      }).then((res) => {
+        this.orderOverview = res.data.data;
+      })
       // const {
       //   status,
       //   data: { data }
@@ -206,58 +237,67 @@ export default {
     },
     // 获取订单数量变化
     async getHourOrderCount() {
-      // const ret = await hourOrderCount({
-      //   cityCode: "075",
-      //   startTime: this.startTime,
-      //   endTime: "2016-11-01 23:38:14"
-      // });
-      // this.hourOrderCount = ret.data.data;
-      // console.log(this.hourOrderCount)
-      // for (var item in this.hourOrderCount) {
-      //   this.keyData.push(item);
-      //   // split("-")[2].split("_")[1]
-      //   // this.itemData.push(this.hourOrderCount[o]);
-      // }
-      // this.keyData.sort();
-      // for (var index in this.keyData) {
-      //   this.itemData.push(this.hourOrderCount[this.keyData[index]]);
-      // }
-      // for(var i=0;i< this.keyData.length;i++){
-      //       this.keyData2.push(this.keyData[i].split("-")[2].split("_")[1])
-      // }
-      // console.log(this.keyData2)
-      // console.log(this.itemData)
-      // 
-      this.initChart();
-      this.initChart2()
+      this.hourOrderCount = []
+      this.keyData= []
+      this.itemData = []
+      this.keyData2 = []
+      this.util.axios({
+        method: 'post',
+        url: 'http://10.20.3.179:8080/track/hourOrderCount',
+        data: {
+          "cityCode":"510100",
+          "startTime":"2016-11-01  15:06:14",
+          "endTime":"2016-11-01  15:06:20"
+          }
+        }).then((ret) => {
+          console.log('订单详情')
+          console.log(ret)
+          this.hourOrderCount = ret.data.data
+          for (var item in this.hourOrderCount) {
+          this.keyData.push(item);
+        }
+        this.keyData.sort();
+        for (var index in this.keyData) {
+          this.itemData.push(this.hourOrderCount[this.keyData[index]]);
+        }
+        for (var i = 0; i < this.keyData.length; i++) {
+          this.keyData2.push(this.keyData[i].split("-")[2].split("_")[1]);
+        }
+        console.log(this.itemData)
+        console.log(this.keyData2)
+        this.initChart()
+      })
     },
     // 获取当前城市的实时轨迹
-    async realtimeTrack() {
-      // console.log("realtimeTrack:请求实时轨迹");
-      // const ret = await orderGps({
-      //   cityCode: "075",
-      //   startTime: this.startTime,
-      //   endTime: this.endTime
-      // });
-      // // console.log("ret:" + ret);
-      // if (ret.status === 200) {
-      //   this.orderGps = ret.data.data;
-      //   // console.log(ret.data.data)
-      //   // console.log(111)
-      //   this.drawCircleMarker(ret.data.data);
-      //   console.log("data.data.length", ret.data.data.length);
-      //   this.pointsCount = this.pointsCount + ret.data.data.length;
-      //   this.startTime = this.endTime;
-      //   this.endTimeDate = new Date(this.endTime);
-      //   this.t = this.endTimeDate.getTime();
-      //   this.t += 120000;
-      //   this.endTimeDate = new Date(this.t);
-
-      //   // this.startTimeDate = new Date(this.startTime);
-      //   console.log("new starttime", this.startTime);
-      //   console.log("new endtime", this.endTime);
-      //   this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
-      // }
+    realtimeTrack() {
+      console.log("realtimeTrack:请求实时轨迹");
+      this.util.axios({
+        method: 'post',
+        url: 'http://10.20.3.179:8080/track/orderGps',
+        data: {"cityCode":"510100",
+        "startTime":"2016-11-01 15:06:14",
+        "endTime":"2016-11-01 16:06:20"}
+      }).then((ret) => {
+        if (ret.data.data === null){
+          this.drawCircleMarker(0);
+          this.pointsCount = 0;
+          this.startTime = this.endTime;
+          this.endTimeDate = new Date(this.endTime);
+          this.t = this.endTimeDate.getTime();
+          this.t += 120000;
+          this.endTimeDate = new Date(this.t);
+          this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
+        } else{
+          this.drawCircleMarker(ret.data.data);
+          this.pointsCount = this.pointsCount + ret.data.data.length;
+          this.startTime = this.endTime;
+          this.endTimeDate = new Date(this.endTime);
+          this.t = this.endTimeDate.getTime();
+          this.t += 120000;
+          this.endTimeDate = new Date(this.t);
+          this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
+        }
+      })
     },
     initMap() {
       //初始化地图
@@ -306,141 +346,133 @@ export default {
           axisLine: {
             lineStyle: {
               type: "solid",
-              color: "#fff", //边线的颜色
+              color: "#6f7ad3", //边线的颜色
               width: "2" //坐标线的宽度
             }
           },
           axisLabel: {
             textStyle: {
-              color: "#fff" //坐标值得具体的颜色
-            }
+              color: "#6f7ad3" //坐标值得具体的颜色
+            },
+            formatter:'{value} 时'
           },
           type: "category",
           boundaryGap: false,
-          data : ['周一','周二','周三','周四','周五','周六','周日']
+          data: this.keyData2
         },
         yAxis: {
           axisLine: {
             lineStyle: {
               type: "solid",
-              color: "#fff", //边线的颜色
+              color: "#6f7ad3", //边线的颜色
               width: "2" //坐标线的宽度
             }
           },
           axisLabel: {
             textStyle: {
-              color: "#fff" //坐标值得具体的颜色
+              color: "#6f7ad3" //坐标值得具体的颜色
             }
           },
           type: "value",
           axisLabel: {
-            margin: 2
+            margin: 2,
+            formatter: '{value} 个'
           }
         },
         series: [
-            // data: this.itemData,
         {
-            name:'邮件营销',
-            type:'line',
-            stack: '总量',
-            areaStyle: {},
-            data:[120, 132, 101, 134, 90, 230, 210]
-        },
-        {
-            name:'联盟广告',
-            type:'line',
-            stack: '总量',
-            areaStyle: {},
-            data:[220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-            name:'视频广告',
-            type:'line',
-            stack: '总量',
-            areaStyle: {},
-            data:[150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-            name:'直接访问',
-            type:'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data:[320, 332, 301, 334, 390, 330, 320]
-        },
-            {
-            name:'搜索引擎',
-            type:'line',
-            stack: '总量',
-            label: {
-                normal: {
-                    show: true,
-                    position: 'top'
-                }
-            },
-            areaStyle: {normal: {}},
-            data:[820, 932, 901, 934, 1290, 1330, 1320]
-        }
+          name:'订单数量',
+          type:'line',
+          stack: '总量',
+          areaStyle: {
+            normal: {
+              color: '#009FD9' //改变区域颜色
+            }
+          },
+          itemStyle : { 
+            normal : { 
+              color:'#00a0ea', //改变折线点的颜色
+              lineStyle:{ 
+                color:'#253A5D' //改变折线颜色
+              } 
+            } 
+          },
+          data: this.itemData
+          }
         ]
       };
 
       this.myChart = this.$echarts.init(document.getElementById("myChartOne"));
       this.myChart.setOption(option);
     },
-    initChart2() {
+    initChart2(a,b) {
       const option = {
+        tooltip : {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
         xAxis: {
           axisLine: {
             lineStyle: {
               type: "solid",
-              color: "#fff", //边线的颜色
+              color: "#6f7ad3", //边线的颜色
               width: "2" //坐标线的宽度
             }
           },
           axisLabel: {
             textStyle: {
-              color: "#fff" //坐标值得具体的颜色
-            }
+              color: "#6f7ad3" //坐标值得具体的颜色
+            },
+            interval:0, 
+            formatter:'{value} 时'
           },
           type: "category",
           boundaryGap: false,
-          // data: this.keyData2
-          data: []
-          // data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+          data: a
         },
         yAxis: {
           axisLine: {
             lineStyle: {
               type: "solid",
-              color: "#fff", //边线的颜色
+              color: "#6f7ad3", //边线的颜色
               width: "2" //坐标线的宽度
             }
           },
           axisLabel: {
             textStyle: {
-              color: "#fff" //坐标值得具体的颜色
+              color: "#6f7ad3" //坐标值得具体的颜色
             }
           },
           type: "value",
           axisLabel: {
-            margin: 2
-            // formatter: function(value, index) {
-            //   // if (value >= 10000 && value < 10000000) {
-            //   //     value = value / 1000 + "k";
-            //   // } else if (value >= 10000000) {
-            //   //     value = value / 1000000 + "k";
-            //   // }
-            //   value = value / 1000 + "k";
-            //   return value;
-            // }
+            margin: 2,
+            formatter: '{value} 个'
           }
         },
         series: [
-          {
-            // data: ["820", "932", "901", "934", "1290", "1330", "1320"],
-            // data: this.itemData,
-            data: [],
-            type: "line",
-            areaStyle: {}
+        {
+          name:'订单数量',
+          type:'line',
+          stack: '总量',
+          areaStyle: {
+            normal: {
+              color: '#009FD9' //改变区域颜色
+            }
+          },
+          itemStyle : { 
+            normal : { 
+              color:'#00a0ea', //改变折线点的颜色
+              lineStyle:{ 
+                color:'#253A5D' //改变折线颜色
+              } 
+            } 
+          },
+          data: b
           }
         ]
       };
@@ -502,20 +534,28 @@ export default {
             name: "邮件营销",
             type: "line",
             stack: "总量",
+            itemStyle : { 
+              normal : { 
+              color:'#00a0ea', //改变折线点的颜色
+              lineStyle:{ 
+              color:'#009FD9' //改变折线颜色
+              } 
+              } 
+              },
             data: [120, 132, 101]
           },
-          {
-            name: "联盟广告",
-            type: "line",
-            stack: "总量",
-            data: [220, 182, 191]
-          },
-          {
-            name: "视频广告",
-            type: "line",
-            stack: "总量",
-            data: [150, 232, 201]
-          }
+          // {
+          //   name: "联盟广告",
+          //   type: "line",
+          //   stack: "总量",
+          //   data: [220, 182, 191]
+          // },
+          // {
+          //   name: "视频广告",
+          //   type: "line",
+          //   stack: "总量",
+          //   data: [150, 232, 201]
+          // }
         ]
       };
       this.myChart = this.$echarts.init(

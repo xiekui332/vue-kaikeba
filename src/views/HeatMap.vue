@@ -137,7 +137,7 @@ export default {
     getMapdata (){
       this.util.axios({
         method: 'get',
-        url: '/didi/hars',
+        url: 'http://10.20.3.177:8989/didi/hars',
         params: {address_code: '420100'}
       }).then(res =>{
         console.log('地图数据')
@@ -147,7 +147,7 @@ export default {
     getTitleData (){
       this.util.axios({
         method:"post",
-        url:"/didi/pro",
+        url:"http://10.20.3.177:8989/didi/pro",
         data:{},
       }).then(res=>{
         if(res.status === 200){
@@ -175,7 +175,7 @@ export default {
       this.util.axios({
         method: 'get',
         params:{city_name: cityname},
-        url: '/didi/fspos'
+        url: 'http://10.20.3.177:8989/didi/fspos'
       }).then(res =>{
         this.resultData = res.data[0]
         this.percentage = parseInt((this.resultData._day_comple_rate))

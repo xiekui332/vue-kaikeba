@@ -75,7 +75,7 @@ export default {
                     verticalAlign:'middle', //middle 、bottom
                     draggable:false, //数据是否可拖动 
                     cursor:'pointer',
-                    angle:10,
+                    angle:10, //点标记的旋转角度支持IE9及以上版本
                     style:{
                         'width': '10px',
                         'height': '10px',

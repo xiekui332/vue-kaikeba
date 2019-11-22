@@ -85,7 +85,7 @@ export default {
         { name: "出行迁途", router: "/movingway" },
         { name: "用户数据", router: "/userData" },
         { name: "热力图", router: "/heatMap" },
-        { name: "系统监控", router: "/system" },
+        // { name: "系统监控", router: "/system" },
         // { name: "订单报表", router: "/orderStatement" },
         // { name: "用户乘车行为统计", router: "/behavior" },
         // { name: "其余", router: "/behavior" }

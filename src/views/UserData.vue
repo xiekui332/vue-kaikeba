@@ -112,7 +112,7 @@ export default {
    getAllData(){
       util.axios({
         method: 'post',
-        url: '/didi/pro',
+        url: 'http://10.20.3.177:8989/didi/pro',
         data:{}
       }).then(res =>{
         if (res.status === 200){
@@ -126,7 +126,7 @@ export default {
       // })
       util.axios({
         method: 'post',
-        url: '/didi/srs',
+        url: 'http://10.20.3.177:8989/didi/srs',
         data:{}
       }).then(resSrs =>{
         if(resSrs.status === 200){
@@ -138,7 +138,7 @@ export default {
       util.axios({
         method:'post',
         data:{},
-        url: '/didi/as'
+        url: 'http://10.20.3.177:8989/didi/as'
       }).then(resAs =>{
         console.log(resAs)
         if(resAs.status === 200){
@@ -164,7 +164,7 @@ export default {
       })
       util.axios({
         method: 'post',
-        url: '/didi/rss',
+        url: 'http://10.20.3.177:8989/didi/rss',
         data:{}
       }).then(resRss =>{
         if(resRss.status === 200){
