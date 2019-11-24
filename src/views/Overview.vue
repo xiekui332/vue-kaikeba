@@ -114,7 +114,8 @@ export default {
       hourOrderCount: {},
       keyData: [],
        keyData2: [],
-      itemData: []
+      itemData: [],
+      realtimeTrackInterval: '',
     };
   },
   async created() {
@@ -160,12 +161,19 @@ export default {
     // await this.getHourOrderCount();
     // var realtimeTrackInterval = window.setInterval(this.realtimeTrack,5000);
   },
+  destroyed() {
+    //离开路由之后断开定时任务
+    window.clearInterval(this.realtimeTrackInterval)
+    window.clearInterval(this.realtimeTrackInterval1)
+    window.clearInterval(this.realtimeTrackInterval2)
+  },
   mounted() {
     this.getHourOrderCount()
     this.getOrderOverview();
+    this.realtimeTrack()
     // this.initChart()
     this.initChart3()
-    this.initMap();
+    this.initMap(); 
     this.realtimeTrack()
     // this.initChart3();
     // this.initChart4();
@@ -180,20 +188,19 @@ export default {
     // };
     // console.log("map.ControlBar:" + this.map);
 
-    // var realtimeTrackInterval = window.setInterval(this.realtimeTrack, 5000);
-    // var realtimeTrackInterval = window.setInterval(this.getHourOrderCount, 5000);
+    this.realtimeTrackInterval = window.setInterval(this.realtimeTrack, 5000);
+    this.realtimeTrackInterval1 = window.setInterval(this.getHourOrderCount, 5000);
+    this.realtimeTrackInterval2 = window.setInterval(this.getOrderOverview, 5000);
   },
   methods: {
     open (){
-      let data = []
       var b = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
       this.dialogTableVisible = true
       console.log(this.hourOrderCount)
       for (let key in this.hourOrderCount){
         console.log(key)
         console.log('+++++')
-        data.push(parseInt(key.split("-")[2].split("_")[1]))
-        b.splice(parseInt(key.split("-")[2].split("_")[1]),1,parseInt(this.hourOrderCount[key]));
+        b.splice(parseInt(key.split("-")[2].split("_")[1]) - 1,1,parseInt(this.hourOrderCount[key]));
       }
       var a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
       console.log(b)
