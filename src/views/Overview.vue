@@ -57,7 +57,7 @@
       </div> -->
     </div>
     <!-- 日期控件 -->
-    <div class="date">
+    <!-- <div class="date">
       <el-date-picker
         class="aaa"
         v-model="startTime"
@@ -66,7 +66,7 @@
         value-format="yyyy-MM-dd HH:mm:ss"
         @change="changeDate(startTime)"
       ></el-date-picker>
-    </div>
+    </div> -->
 
     <!-- 详情弹框 -->
     <el-dialog title="详情" width=70% :visible.sync="dialogTableVisible">
@@ -81,10 +81,11 @@ import { orderOverview, orderGps, hourOrderCount } from "@/api";
 export default {
   data() {
     return {
+      nowCity: 510100,
       dialogTableVisible: false,
       orderOverview: {
-        orderCount: 589,
-        orderPassengerCount: 976
+        orderCount: 0,
+        orderPassengerCount: 0
       }, //订单概况
       orderGps: [], //实时轨迹
       markers: [],
@@ -161,6 +162,23 @@ export default {
     // await this.getHourOrderCount();
     // var realtimeTrackInterval = window.setInterval(this.realtimeTrack,5000);
   },
+  computed: {
+      listenshowpage1() {
+        return this.$store.state.citycode;
+      }
+  },
+    watch:{
+      listenshowpage1:{
+        handler(curVal,oldVal){
+          console.log(curVal)
+          window.clearInterval(this.realtimeTrackInterval)
+          window.clearInterval(this.realtimeTrackInterval1)
+          window.clearInterval(this.realtimeTrackInterval2)
+          this.changeCity(curVal)
+        },
+        deep:true
+      },
+  },
   destroyed() {
     //离开路由之后断开定时任务
     window.clearInterval(this.realtimeTrackInterval)
@@ -168,13 +186,12 @@ export default {
     window.clearInterval(this.realtimeTrackInterval2)
   },
   mounted() {
-    this.getHourOrderCount()
-    this.getOrderOverview();
-    this.realtimeTrack()
+    this.getHourOrderCount(this.nowCity)
+    this.getOrderOverview(this.nowCity);
+    // this.realtimeTrack(this.nowCity)
     // this.initChart()
     this.initChart3()
     this.initMap(); 
-    this.realtimeTrack()
     // this.initChart3();
     // this.initChart4();
     // this.initChart5();
@@ -188,21 +205,31 @@ export default {
     // };
     // console.log("map.ControlBar:" + this.map);
 
-    this.realtimeTrackInterval = window.setInterval(this.realtimeTrack, 5000);
-    this.realtimeTrackInterval1 = window.setInterval(this.getHourOrderCount, 5000);
-    this.realtimeTrackInterval2 = window.setInterval(this.getOrderOverview, 5000);
+    // this.realtimeTrackInterval = window.setInterval(this.realtimeTrack(this.nowCity), 5000);
+    // this.realtimeTrackInterval1 = window.setInterval(this.getHourOrderCount(this.nowCity), 5000);
+    // this.realtimeTrackInterval2 = window.setInterval(this.getOrderOverview(this.nowCity), 5000);
   },
   methods: {
+    changeCity(data){
+      var data = data
+      this.realtimeTrack(data)
+      this.getHourOrderCount(data)
+      this.getOrderOverview(data)
+      // this.realtimeTrackInterval = window.setInterval(this.realtimeTrack(data), 5000);
+      // this.realtimeTrackInterval1 = window.setInterval(this.getHourOrderCount(data), 5000);
+      // this.realtimeTrackInterval2 = window.setInterval(this.getOrderOverview(data), 5000);
+    },
     open (){
-      var b = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      var b = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,]
       this.dialogTableVisible = true
+      console.log('sxsxsxsxsxsssss')
       console.log(this.hourOrderCount)
       for (let key in this.hourOrderCount){
         console.log(key)
         console.log('+++++')
         b.splice(parseInt(key.split("-")[2].split("_")[1]) - 1,1,parseInt(this.hourOrderCount[key]));
       }
-      var a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+      var a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,]
       console.log(b)
       this.$nextTick(() => {
         this.initChart2(a,b)
@@ -213,21 +240,29 @@ export default {
       console.log(startTimeDate);
       // this.startTime = startTimeDate.format("yyyy-MM-dd hh:mm:ss");
       // console.log("this.startTime",this.startTime)
-      this.getOrderOverview();
+      this.getOrderOverview(this.nowCity);
+      this.changeCity(this.nowCity)
       // console.log("value", value);
     },
     // 请求订单数
-    getOrderOverview() {
+    getOrderOverview(data) {
       this.util.axios({
         method: 'post',
-        url: 'http://10.20.3.179:8080/track/orderOverview',
+        url: 'http://10.20.3.99:8080/track/orderOverview',
         data: {
-          "cityCode":"510100",
-          "startTime":"2016-11-01  15:06:14",
-          "endTime":"2016-11-01  16:06:20"
+          "cityCode":data,
+          "startTime":"2017-05-19 01:09:12",
+          "endTime":"2017-05-19 23:59:59"
         }
       }).then((res) => {
-        this.orderOverview = res.data.data;
+        if(res.data.data === null){
+          this.orderOverview = {
+            orderCount: 0,
+            orderPassengerCount: 0
+          }
+        }else{
+           this.orderOverview = res.data.data;
+        }
       })
       // const {
       //   status,
@@ -243,18 +278,18 @@ export default {
       // }
     },
     // 获取订单数量变化
-    async getHourOrderCount() {
+    async getHourOrderCount(data) {
       this.hourOrderCount = []
       this.keyData= []
       this.itemData = []
       this.keyData2 = []
       this.util.axios({
         method: 'post',
-        url: 'http://10.20.3.179:8080/track/hourOrderCount',
+        url: 'http://10.20.3.99:8080/track/hourOrderCount',
         data: {
-          "cityCode":"510100",
-          "startTime":"2016-11-01  15:06:14",
-          "endTime":"2016-11-01  15:06:20"
+          "cityCode":data,
+          "startTime":"2016-11-01  00:00:00",
+          "endTime":"2016-11-01  23:00:00"
           }
         }).then((ret) => {
           console.log('订单详情')
@@ -276,36 +311,38 @@ export default {
       })
     },
     // 获取当前城市的实时轨迹
-    realtimeTrack() {
-      console.log("realtimeTrack:请求实时轨迹");
-      this.util.axios({
-        method: 'post',
-        url: 'http://10.20.3.179:8080/track/orderGps',
-        data: {"cityCode":"510100",
-        "startTime":"2016-11-01 15:06:14",
-        "endTime":"2016-11-01 16:06:20"}
-      }).then((ret) => {
-        if (ret.data.data === null){
-          this.drawCircleMarker(0);
-          this.pointsCount = 0;
-          this.startTime = this.endTime;
-          this.endTimeDate = new Date(this.endTime);
-          this.t = this.endTimeDate.getTime();
-          this.t += 120000;
-          this.endTimeDate = new Date(this.t);
-          this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
-        } else{
-          this.drawCircleMarker(ret.data.data);
-          this.pointsCount = this.pointsCount + ret.data.data.length;
-          this.startTime = this.endTime;
-          this.endTimeDate = new Date(this.endTime);
-          this.t = this.endTimeDate.getTime();
-          this.t += 120000;
-          this.endTimeDate = new Date(this.t);
-          this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
-        }
-      })
-    },
+    // realtimeTrack(data) {
+    //   console.log("realtimeTrack:请求实时轨迹");
+    //   this.util.axios({
+    //     method: 'post',
+    //     url: 'http://10.20.3.99:8080/track/orderGps',
+    //     data: {
+    //       "cityCode":data,
+    //       "startTime":"2017-05-19 01:09:12",
+    //       "endTime":"2017-05-19 23:59:59"
+    //     }
+    //   }).then((ret) => {
+    //     if (ret.data.data === null || ret.data.data.length === 0){
+    //       this.drawCircleMarker(0);
+    //       this.pointsCount = 0;
+    //       this.startTime = this.endTime;
+    //       this.endTimeDate = new Date(this.endTime);
+    //       this.t = this.endTimeDate.getTime();
+    //       this.t += 120000;
+    //       this.endTimeDate = new Date(this.t);
+    //       this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
+    //     } else{
+    //       this.drawCircleMarker(ret.data.data);
+    //       this.pointsCount = this.pointsCount + ret.data.data.length;
+    //       this.startTime = this.endTime;
+    //       this.endTimeDate = new Date(this.endTime);
+    //       this.t = this.endTimeDate.getTime();
+    //       this.t += 120000;
+    //       this.endTimeDate = new Date(this.t);
+    //       this.endTime = this.endTimeDate.format("yyyy-MM-dd hh:mm:ss");
+    //     }
+    //   })
+    // },
     initMap() {
       //初始化地图
       this.map = new AMap.Map("container", {

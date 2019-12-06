@@ -5,14 +5,18 @@
       <div class="real_time_order">
         <h2>实时订单列表</h2>
         <ul>
-          <li v-for="item in realOrderList" :key="item" @click="realtimeTrack(item)">{{item}}</li>
+          <li>实时订单号：</li>
+          <!-- <li v-if="orderStatus === false" @click="realtimeTrack('510100_39a096b71376b82f35732eff6d95779b')">实时订单号： 39a096b71376b82f35732eff6d95779b</li> -->
+          <li v-for="item in realOrderList" :key="item" @click="realtimeTrack(item)">{{item.substring(7,item.length)}}</li>
         </ul>
       </div>
       <div class="historical_orders">
         <h2>历史订单列表</h2>
         <ul>
-          <li @click="hisTrack('39a096b71376b82f35732eff6d95779b')">39a096b71376b82f35732eff6d95779b</li>
-          <li v-for="item in hisOrderList" :key="item" @click="hisTrack(item)">{{item}}</li>
+          <li>历史订单号： </li>
+          <!-- <li v-if="this.history === '39a096b71376b82f35732eff6d95779b'" @click="hisTrack('39a096b71376b82f35732eff6d95779b')">39a096b71376b82f35732eff6d95779b</li>
+          <li v-if="this.history1 === '11746cc1d82418066fda69f08fb671c8'" @click="hisTrack('11746cc1d82418066fda69f08fb671c8')">11746cc1d82418066fda69f08fb671c8</li> -->
+          <li v-for="item in hisOrderList" :key="item" @click="hisTrack(item.substring(7,item.length))">{{item.substring(7,item.length)}}</li>
         </ul>
       </div>
       <div id="lng_lat">{{message}}</div>
@@ -20,12 +24,14 @@
     <div class="input-card" v-show="isControl">
       <h4>轨迹回放控制</h4>
       <div class="input-item">
-        <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation()" />
-        <input type="button" class="btn" value="暂停动画" id="pause" @click="pauseAnimation()" />
-      </div>
-      <div class="input-item">
-        <input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation()" />
-        <input type="button" class="btn" value="停止动画" id="stop" @click="stopAnimation()" />
+        <el-row>
+          <el-col :span="12"><div><input type="button" class="btn" value="开始动画" id="start" @click="startAnimation()" /></div></el-col>
+          <el-col :span="12"><div style="margin-left: 5px"><input type="button" class="btn" value="暂停动画" id="pause" @click="pauseAnimation()"/></div></el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12"><div><input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation()" /></div></el-col>
+          <el-col :span="12"><div style="margin-left: 5px"><input type="button" class="btn" value="停止动画" id="stop" @click="stopAnimation()" /></div></el-col>
+        </el-row>
       </div>
     </div>
   </div>
@@ -37,8 +43,9 @@ import { historyTrackPoints, realtimeOrder } from "@/api";
 export default {
   data() {
     return {
+      orderStatus: false,
       websocket: null, //socket实例
-      wsuri: "ws://192.168.21.178:8080/websocket",
+      wsuri: "ws://10.20.3.179:8080/websocket",
       realOrderList: [], //实时订单
       hisOrderList: [], //历史订单
       map: null,
@@ -52,6 +59,8 @@ export default {
       polyline: null, // 绘制轨迹
       passedPolyline: null,
       message: "",
+      history: '',
+      history1: '',
       isControl: false //轨迹控制显示隐藏
       // CITY_CNTER : [],
     };
@@ -90,6 +99,14 @@ export default {
     console.log("请求实时订单列表");
 
     console.log("citycode:" + this.getCitycode);
+    this.util.axios({
+        method: 'post',
+        url: 'http://10.20.3.99:8080/track/realtimeOrder',
+        data: {cityCode: 510100}
+      }).then((res) => {
+        console.log(res)
+        this.realOrderList = res.data.data;
+      })
     // const {
     //   status,
     //   data: { data }
@@ -106,8 +123,10 @@ export default {
     // });
   },
   destroyed() {
+    console.log('+++++++++_______')
     //离开路由之后断开websocket连接
     this.closeWebSocket();
+    window.clearInterval(this.timename);
   },
   methods: {
     initMap() {
@@ -116,7 +135,7 @@ export default {
         resizeEnable: true,
         rotateEnable: true,
         pitchEnable: false,
-        zoom: 17,
+        zoom: 25,
         pitch: 65,
         rotation: 45,
         viewMode: "3D", //开启3D视图,默认为关闭
@@ -158,6 +177,7 @@ export default {
     },
     //连接发生错误的回调方法
     websocketonerror(error) {
+      console.log('cuowu' + error)
       this.setMessage(error);
     },
     //连接成功建立的回调方法
@@ -167,11 +187,15 @@ export default {
     },
     //接收到消息的回调方法
     websocketonmessage(event) {
+      console.log('webstock回调')
       this.setMessage(event.data);
+      console.log(event.data)
       if (event.data.indexOf(",") != -1) {
         this.lngAndLat = (event.data + "").split(",");
         // console.log("this.lngAndLat", this.lngAndLat);
       } else if (event.data.indexOf("end") != -1) {
+        console.log('订单结束')
+        this.orderStatus = true
         this.lngAndLat = event.data;
       }
     },
@@ -182,12 +206,22 @@ export default {
 
     // //发送消息
     send() {
+      console.log('是否调用此方法')
       var message = document.getElementById("text").value;
       this.websocket.send(message);
     },
 
     // 获取实时轨迹  @param orderId
     realtimeTrack(orderId) {
+      // this.history = ''
+      // this.history1 = ''
+      this.marker = null
+      console.log(this.websocket.readyState !== 1)
+      if(this.websocket.readyState !== 1){
+        this.websocket = new WebSocket(this.wsuri);
+        // 监听socket消息
+        this.websocket.onmessage = this.websocketonmessage;
+      }
       this.isControl = false;
       if ("undefined" == typeof this.lngAndLat || null == this.lngAndLat) {
         this.lngAndLat = "";
@@ -198,20 +232,24 @@ export default {
       this.marker = null;
       //清理定时器，从新定义新的定时器.
       window.clearInterval(this.timename);
-      this.timename = window.setInterval(() => {
-        lngAndLatStr = this.lngAndLat.toString();
-        // console.log("lngAndLat", lngAndLat);
-        if (lngAndLatStr.indexOf(",") != -1) {
-          window.clearInterval(this.timename);
-        }
-        this.websocket.send(orderId);
-      }, 300);
+      // this.timename = window.setInterval(() => {
+      //   lngAndLatStr = this.lngAndLat.toString();
+      //   // console.log("lngAndLat", lngAndLat);
+      //   if (lngAndLatStr.indexOf(",") != -1) {
+      //     window.clearInterval(this.timename);
+      //   }
+        
+      //   console.log("219 orderId:"+orderId);
+      //   this.websocket.send(orderId);
+      //   console.log('sID')
+      // }, 300);
 
       var timename2 = window.setInterval(() => {
         lngAndLatStr = this.lngAndLat.toString();
         if (lngAndLatStr.indexOf("end") != -1) {
           //判断订单轨迹结束后讲订单的信息移入到历史订单列表中去.
           console.log("订单结束");
+          this.orderStatus = true
           window.clearInterval(timename2);
           this.websocket.close();
           // const idx = this.realOrderList.findIndex(value => )
@@ -220,7 +258,11 @@ export default {
             this.realOrderList.splice(index, 1);
           }
           this.hisOrderList.push(orderId);
-
+          this.lngAndLat = ''
+          // this.history = orderId.substring(7,orderId.length)
+          // this.history1 = orderId.substring(7,orderId.length)
+          // console.log(this.history1)
+          this.map.setFitView()
           // this.realOrderList.
 
           // $RealtimeOrderList.find("span[orderId='" + orderId + "']").remove();
@@ -236,7 +278,6 @@ export default {
           // );
           return;
         }
-
         if (lngAndLatStr.indexOf(",") != -1) {
           var lngLat = new AMap.LngLat(
             this.lngAndLat[0],
@@ -244,6 +285,8 @@ export default {
             false
           );
           if (null != this.marker) {
+            console.log(this.marker)
+            console.log('走1')
             //设置标注位置
             //移动汽车位置前先平移地图，扩大显示的视角范围。
             this.map.animateEnable = true;
@@ -253,6 +296,8 @@ export default {
               return k;
             });
           } else {
+            console.log(this.marker)
+            console.log('周二')
             this.marker = new AMap.Marker({
               map: this.map,
               position: lngLat,
@@ -264,10 +309,12 @@ export default {
           }
         }
 
-        // console.log("---发送id---");
+        console.log("---发送id---:" +  orderId);
         this.websocket.send(orderId);
       }, 300);
-
+      console.log('+++++++')
+      console.log(this.marker)
+      console.log('____________')
       // 清空上次的标记以及定时器
       // this.marker = null;
       // window.clearInterval(this.timename);
@@ -322,19 +369,24 @@ export default {
     },
     // 获取历史轨迹
     async hisTrack(orderId) {
+      console.log(this.marker)
+      // this.marker = null
+      this.map.setFitView()
+      console.log(this.marker)
       this.isControl = true;
-      console.log("orderId:" + orderId);
-      const {
-        status,
-        data: { data }
-      } = await historyTrackPoints({ orderId: orderId });
-      console.log(data);
-      if (status === 200) {
-        //清理旧的轨迹点
+      var data = []
+      this.util.axios({
+        method: 'post',
+        url: 'http://10.20.3.99:8080/track/historyTrackPoints',
+        data: {orderId: orderId}
+      }).then((res) => {
+        data = res.data.data
+        if(res.status === 200){
+                  //清理旧的轨迹点
         this.lineArr = new Array();
         console.log("操作成功！");
         data.forEach((item, i) => {
-          console.log("i", i);
+          // console.log("i", i);
           let tmpArray = new Array();
           // console.log(item.lng)
           tmpArray[0] = item.lng;
@@ -343,13 +395,20 @@ export default {
           this.lineArr[i] = tmpArray;
         });
         if (null != this.marker) {
+          console.log('1')
           this.map.remove(this.marker);
+          this.marker = null
         }
-        if (null != this.marker) {
+        if (null !=this.polyline) {
+          console.log('1')
           this.map.remove(this.polyline);
+          this.polyline = null
         }
-        if (null != this.marker) {
+        if (this.passedPolyline !=null) {
+          console.log('1')
           this.map.remove(this.passedPolyline);
+          this.passedPolyline = null
+
         }
         this.marker = new AMap.Marker({
           map: this.map,
@@ -359,6 +418,7 @@ export default {
           autoRotation: true,
           angle: -90
         });
+        this.map.setFitView();
         console.log(this.marker.getPosition());
         this.marker.on("moving", e => {
           console.log(e.passedPath);
@@ -367,7 +427,6 @@ export default {
           console.log("this", this);
           this.passedPolyline.setPath(e.passedPath);
         });
-        this.map.setFitView();
         this.polyline = new AMap.Polyline({
           map: this.map,
           path: this.lineArr,
@@ -385,7 +444,18 @@ export default {
           strokeWeight: 6 //线宽
           // strokeStyle: "solid"  //线样式
         });
-      }
+        
+        }
+      })
+      // console.log("orderId:" + orderId);
+      // const {
+      //   status,
+      //   data: { data }
+      // } = await historyTrackPoints({ orderId: orderId });
+      // console.log(data);
+      // if (status === 200) {
+      //   
+      // }
     }
   }
 };
@@ -410,6 +480,8 @@ export default {
   opacity: 0.8;
   color: #fff;
   float: left;
+  border:1px solid black;
+  border-radius: 0 100px 100px 0;
   h2 {
     font-size: 20px;
     color: #fff;
@@ -418,10 +490,11 @@ export default {
     border-left: solid 3px #ffdc76;
   }
   ul {
-    margin-top: 30px;
+    margin-top: 15px;
     li {
       margin: 0 15px;
       font-size: 12px;
+      color: #25a5f7;
       line-height: 30px;
       text-align: center;
       border-bottom: solid 1px #ffdc76;
@@ -457,7 +530,8 @@ export default {
   background-color: #181b2c;
   opacity: 0.8;
   background-clip: border-box;
-  width: 20rem;
+  width: 25rem;
+  height: 10rem;
   border-width: 0;
   border-radius: 0.4rem;
   position: fixed;
@@ -509,6 +583,7 @@ export default {
   -webkit-appearance: button;
   cursor: pointer;
   outline: none;
+  margin-top: 10px
 }
 .input-card .btn:last-child {
   margin-right: 0;

@@ -25,27 +25,44 @@ export default {
     getStationCount(){
       this.util.axios({
         method: 'post',
-        url: 'http://10.20.3.179:8080/track/virtualStationCount',
+        url: 'http://10.20.3.99:8080/track/virtualStationCount',
         data: {cityCode:"83"}
       }).then(resData =>{
         this.StationCount = resData.data.data
       })
     },
     getMapData(){
+      var newArray = []
       this.util.axios({
         method: 'post',
-        url: 'http://10.20.3.179:8080/track/virtualStations',
+        url: 'http://10.20.3.99:8080/track/virtualStations',
         data: {cityCode:"83"}
       }).then((res) => {
-        res.data.data.forEach(item => {
-          this.mapData.push(
-            [item.startingLng, item.startingLat]
-          )
+        // newArray = res.data.data.slice(0,100)
+        // console.log(newArray)
+        // res.data.data.forEach(item => {
+        //   this.mapData.push(
+        //     [item.startingLng, item.startingLat]
+        //   )
+        // })
+        for(let i = 0; i < res.data.data.length; i++){
+          if (res.data.data[0] !== null){
+            if(i < 100){
+              this.mapData.push(
+                [res.data.data[i].startingLng, res.data.data[i].startingLat]
+              )
+            }
+          }
+        }
+        console.log(this.mapData)
+        this.$nextTick(() => {
+          this.initMap(this.mapData);
         })
-        this.initMap(this.mapData);
       })
     },
     initMap(data) {
+      console.log('-====')
+      console.log(data)
       var map = new AMap.Map("container", {
         center: [110.3435,20.049], //设置中心点
         resizeEnable: true,
